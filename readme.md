@@ -3,6 +3,9 @@
 ## To-Do List
 - ✅ 木星が視野に入っているSTIS観測のObs. IDをリストアップする。
 - プロポーザルを読み、おおよその視野を調べる。
+    - ✅ ID 13035 のプロポーザルを入手。
+    - ✅ CML rangeの記載あり。
+    - "NOT OLG OF JUPITER FROM EARTH BETWEEN 15 345"の意味は?
 - Campaign中のCMLを調べて、IDの絞り込みをする。
     - ✅ UTCと赤緯赤経はリストに含まれる。
     - System IIIはSpiceypyで計算できる？
