@@ -13,7 +13,7 @@
     - ✅ JPLのHorizons System (https://ssd.jpl.nasa.gov/horizons/app.html#/) で調べることができる。
         - (5) "Table Settings" で (14) "Observer sub-lon & sub-lat" ($\phi_m$) を選択すると、"sub-lon"はSystem III経度で表示される。
         - 衛星の場合、(26) "Observer-Primary-Target angle" ($\varphi_{obs}$)を追加する。
-        - (Sub-observer Sys. III からの離角) $ = 180^\circ - \varphi_{obs} - (360^\circ - \phi_m)$ でOK。
+        - (Sub-observer Sys. III からの離角) $ = 180^\circ$ $- \varphi_{obs} - (360^\circ - \phi_m)$ でOK。
         - 光速のラグ(だいたい40分 参考 http://photon.sci-museum.kita.osaka.jp/question/text/distance.html)は考慮済み。
     - ✅ SpiceypyとAstropyのインストール。
         1. Spiceypyの使い方を勉強する。
@@ -27,3 +27,7 @@
     - Fitsファイル単体の表示はOK。
     - 極の位置を特定できていない。なので緯度経度の表示もまだ。
     - System III経度は、UTから計算?
+- 磁場モデルからFootprintのL値を調べる。
+    - ❌ ルジャンドル陪関数を計算する `pyshtools` がARM64に対応していない。`conda install -c conda-forge pyshtools`はApple Siliconでは不可。
+    - Fortran95用の `shtools` はApple Siliconでも動くらしい。でもmoduleの使い方分からない。
+    - Colabなら確実に動く。
