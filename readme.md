@@ -30,4 +30,8 @@
 - 磁場モデルからFootprintのL値を調べる。
     - ❌ ルジャンドル陪関数を計算する `pyshtools` がARM64に対応していない。`conda install -c conda-forge pyshtools`はApple Siliconでは不可。
     - Fortran95用の `shtools` はApple Siliconでも動くらしい。でもmoduleの使い方分からない。
-    - Colabなら確実に動く。
+    - ✅ Deimosで磁場モデルを扱えるように環境を整備した。
+- 各IDの積分時間の取り扱いがわからない (問い合わせ中)。
+    - `TIME-TAG`の説明 (https://hst-docs.stsci.edu/stisdhb/chapter-2-stis-data-structure/2-3-stis-file-structures)
+    - `astropy.table`を使って`oeow08fgq_tag.fits`の中身を見ると、トータル積分時間に比べて細かい時間刻みで記録が格納されている。
+    - `oeow08fgq_raw.fits`から各時刻のデータが取り出せる？
