@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
+<<<<<<< HEAD
 hstprojimage.py
 
 Version 1.0 Created by jdn on 2023-03-24.
 Version 1.1 Modified by jdn on 2023-03-24 to run with Cartopy 0.21
+=======
+hstimug.py
+
+Created by jdn on 2013-09-25.
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
 Copyright (c) 2013 University of Leicester. All rights reserved.
 """
 
@@ -23,11 +29,18 @@ from cartopy.mpl.ticker import LongitudeFormatter
 import warnings
 import copy
 import sys
+<<<<<<< HEAD
 import spiceypy as spice
 
 
 class PlanetLonFormatter(LongitudeFormatter):
     """Object that modifies the Cartopy LongitudeFormatter to formats the
+=======
+
+
+class PlanetLonFormatter(LongitudeFormatter):
+    """Object that modifies the Cartopy LongitudeFormatter to formats the 
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
        longitude labels in the customary manner for planetary observations,
        i.e. from 0-360 deg, rather than +/- 180 E/W """
 
@@ -44,6 +57,10 @@ class HSTProjImage(object):
 
     # Define reference file directory
     # This will be different for each setup
+<<<<<<< HEAD
+=======
+    # BASEDIR = Path('/Users/jdn4/data/HST/')
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
     BASEDIR = Path('/Users/shin/Documents/Research/Jupiter/Codes/HST/')
     if BASEDIR.exists() is False:
         print('Please set the base directory to an existing directory')
@@ -175,6 +192,7 @@ class HSTProjImage(object):
         if self.alm.hemisph == 'north':
             if self.ny == 180:
                 y1, y2, x1, x2 = 540, 720, 0, 1440  # 45 -> 89.75 deg lat
+<<<<<<< HEAD
                 lon1, lon2, lat1, lat2 = 360, 0, 45, 90
             elif self.ny == 200:
                 y1, y2, x1, x2 = 520, 720, 0, 1440  # 40 -> 89.75 deg lat
@@ -182,6 +200,15 @@ class HSTProjImage(object):
             elif self.ny == 720:
                 y1, y2, x1, x2 = 0, 720, 0, 1440    # 0 -> 89.75 deg lat
                 lon1, lon2, lat1, lat2 = 360, 0, -90, 90
+=======
+                lon1, lon2, lat1, lat2 = 180, -180, 45, 90
+            elif self.ny == 200:
+                y1, y2, x1, x2 = 520, 720, 0, 1440  # 40 -> 89.75 deg lat
+                lon1, lon2, lat1, lat2 = 180, -180, 40, 90
+            elif self.ny == 720:
+                y1, y2, x1, x2 = 0, 720, 0, 1440    # 0 -> 89.75 deg lat
+                lon1, lon2, lat1, lat2 = 180, -180, -90, 90
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
             else:
                 print('Unrecognised cylindrical projection array shape:',
                       self.nx, self.ny)
@@ -190,11 +217,18 @@ class HSTProjImage(object):
         elif self.alm.hemisph == 'south':
             if self.ny == 181:
                 y1, y2, x1, x2 = 0, 181, 0, 1440    # 0 -> -45 deg lat
+<<<<<<< HEAD
                 # longitudes flipped so aurora plotted through planet
                 lon1, lon2, lat1, lat2 = 360, 0, -90, -45
             elif self.ny == 720:
                 y1, y2, x1, x2 = 0, 720, 0, 1440    # 0 -> 89.75 deg lat
                 lon1, lon2, lat1, lat2 = 360, 0, -90, 90
+=======
+                lon1, lon2, lat1, lat2 = 180, -180, -90, -45
+            elif self.ny == 720:
+                y1, y2, x1, x2 = 0, 720, 0, 1440    # 0 -> 89.75 deg lat
+                lon1, lon2, lat1, lat2 = 180, -180, -90, 90
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
             else:
                 print('Unrecognised cylindrical projection array shape:',
                       self.nx, self.ny)
@@ -203,7 +237,11 @@ class HSTProjImage(object):
         else:
             if self.ny == 720:
                 y1, y2, x1, x2 = 0, 720, 0, 1440    # 0 -> 89.75 deg lat
+<<<<<<< HEAD
                 lon1, lon2, lat1, lat2 = 360, 0, -90, 90
+=======
+                lon1, lon2, lat1, lat2 = 180, -180, -90, 90
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
             else:
                 print('Unrecognised cylindrical projection array shape:',
                       self.nx, self.ny)
@@ -216,8 +254,13 @@ class HSTProjImage(object):
         # Planetary radius set to 1 R_p. Oblateness was taken care of in reduction
         self.globe = ccrs.Globe(
             semimajor_axis=1, semiminor_axis=1, ellipse=None)
+<<<<<<< HEAD
         self.cylproj = ccrs.PlateCarree(central_longitude=0, globe=self.globe)
         self.geodetic = ccrs.Geodetic(self.globe)
+=======
+        self.cylproj = ccrs.PlateCarree(central_longitude=180)
+        self.geodetic = ccrs.Geodetic()
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
 
         # Compute mu = the cosine of the observation angle
 
@@ -240,6 +283,12 @@ class HSTProjImage(object):
         if domu is True:
             self.mu = _mu(y1, y2, x1, x2, self.alm.dece, self.alm.cml)
 
+<<<<<<< HEAD
+=======
+
+###############################################################################
+
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
     def _getGistCool(self):
         """Returns a colour map based on gist_heat,
         but with the R and B channels swapped"""
@@ -270,11 +319,18 @@ class HSTProjImage(object):
     def tvPolar(self, axis=None, vmin=None, vmax=None, yclip=88, yclipval=None,
                 norm='log', grid=True, reflon=None, zero=True, badcol='0.',
                 cmap=None, satovals=['all'], refmainoval=False, noplot=False,
+<<<<<<< HEAD
                 draw_labels=False, grid_spacing=(20, 10), ylabellon=220, **kwargs):
         """
         Converts the cylindrical projection of the image to
         Polar Stereographic projections using Cartopy and plots.
         The southern aurora is plotted as if looking through the planet.
+=======
+                draw_labels=False, grid_spacing=(20, 10), **kwargs):
+        """
+        Converts the cylindrical projection of the image to
+        Polar Stereographic projections using Cartopy and plots.
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
         Parameters control some aspects of the plot
 
         Parameters
@@ -282,7 +338,11 @@ class HSTProjImage(object):
         axis: optional
             A class:`matplotlib.axes.Axes` instance, used to define the position
             of the  :class:`cartopy.mpl.geoaxes.GeoAxes` object that is created
+<<<<<<< HEAD
             to plot the image. axis is destroyed after its position is used.
+=======
+            to plot the image. This is destroyed after its position is used.
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
         vmin, vmax: float, optional
            Defines the data range the colormap covers. Defaults to the full
            range of the data
@@ -328,6 +388,7 @@ class HSTProjImage(object):
         grid_spacing: tuple, optional
             A 2-tuple (lon_spacing, lat_spacing), which defines the spacing
             in degrees of drawn gridlines.
+<<<<<<< HEAD
         ylabellon: float, optional
             The longitude at which northern inline latitude labels are shown
         """
@@ -353,6 +414,9 @@ class HSTProjImage(object):
         s3_idx = np.argmin(np.abs(np.arange(0, 360, 5)-Sys3))
         print('S3_IDX', s3_idx)
         # s3_candidate = s3list[s3_idx]   # Closest Sys3 long.
+=======
+        """
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
 
         # Output projection
         hem = self.alm.hemisph
@@ -399,8 +463,15 @@ class HSTProjImage(object):
         ax.set_aspect('equal', adjustable='box')
 
         # Set the plot extents in the output coordinate system
+<<<<<<< HEAD
         def _shift_centre(aplat, aplon, out_extent):
             # aplat and aplon are the coords of approx. centroid of auroral region
+=======
+
+        def _shift_centre(aplat, aplon, out_extent):
+            # aplat and aplon are the coords of approx. centroid of auroral region
+            # (lon shifted by 180 due to the RH coordinate system of Cartopy)
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
             apx, apy = outproj.transform_point(aplon, aplat, self.cylproj)
             midx = out_extent[0] + (out_extent[1] - out_extent[0])/2.
             midy = out_extent[2] + (out_extent[3] - out_extent[2])/2.
@@ -412,11 +483,18 @@ class HSTProjImage(object):
         if hem == 'north':
             out_extent = np.array([-0.51, 0.49, -0.77, 0.23])
             if reflon != 180:
+<<<<<<< HEAD
                 out_extent = _shift_centre(70, 180, out_extent)
         else:
             out_extent = np.array([-0.60, 0.4, -0.6, 0.4])
             if reflon != 0:
                 out_extent = _shift_centre(-82, 42, out_extent)
+=======
+                out_extent = _shift_centre(70, 0, out_extent)
+        else:
+            # cml -= 180 #?
+            out_extent = np.array([-0.60, 0.4, -0.6, 0.4])
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
 
         # Perform the image transformation
         dimage, dum = warp_array(dimage, outproj, source_proj=self.cylproj,
@@ -427,6 +505,7 @@ class HSTProjImage(object):
         if noplot is True:
             return ax, dimage
 
+<<<<<<< HEAD
         # Show the image and plot gridlines aand tick labels if required
         self.normfunc = {'log': LogNorm(vmin=vmin, vmax=vmax),
                          'lin': Normalize(vmin=vmin, vmax=vmax)}[norm]
@@ -439,6 +518,20 @@ class HSTProjImage(object):
                               ylim=(-80, 80), linestyle=':', draw_labels=draw_labels, y_inline=True, x_inline=False,
                               xformatter=PlanetLonFormatter(direction_label=False))
 
+=======
+        # Show the image and plot gridlines if required
+        self.normfunc = {'log': LogNorm(vmin=vmin, vmax=vmax),
+                         'lin': Normalize(vmin=vmin, vmax=vmax)}[norm]
+        self.tvim = ax.imshow(dimage, origin='lower',
+                              extent=out_extent, norm=self.normfunc, cmap=cmap)
+
+        if grid is True:
+            gl = ax.gridlines(xlocs=np.arange(-180, 180, grid_spacing[0]),
+                              ylocs=np.arange(-90, 90, grid_spacing[1]),
+                              ylim=(-80, 80), linestyle=':', draw_labels=draw_labels, y_inline=False,
+                              xformatter=PlanetLonFormatter(direction_label=False))
+            gl.rotate_labels = False
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
         else:
             gl = []
 
@@ -466,17 +559,24 @@ class HSTProjImage(object):
             satoval = np.recfromtxt(HSTProjImage.REFDIR.joinpath(
                 '2021je007055-sup-000'+str(1+num)+'-table si-s0'+str(num)+'.txt'), skip_header=3,
                 names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
+<<<<<<< HEAD
             euftp_lon = (satoval.euwlon[s3_idx-1]+satoval.euwlon[s3_idx])/2
             euftp_lat = (satoval.eulat[s3_idx-1]+satoval.eulat[s3_idx])/2
             print('EUROPA FTP', euftp_lon, euftp_lat)
+=======
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
             if 'io' in satovals:
                 ax.plot(satoval.iowlon, satoval.iolat, 'w',
                         transform=self.geodetic, lw=0.4)
             if 'eu' in satovals:
                 ax.plot(satoval.euwlon, satoval.eulat, 'w',
+<<<<<<< HEAD
                         transform=self.geodetic, lw=0.4, zorder=0.8)
                 ax.plot(euftp_lon, euftp_lat, markersize=18, marker='o', markerfacecolor='none', markeredgecolor='red',
                         transform=self.geodetic, zorder=5)
+=======
+                        transform=self.geodetic, lw=0.4)
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
             if 'ga' in satovals:
                 ax.plot(satoval.gawlon, satoval.galat, 'w',
                         transform=self.geodetic, lw=0.4)
@@ -485,6 +585,7 @@ class HSTProjImage(object):
         if hem == 'north':
             ax.invert_xaxis()
 
+<<<<<<< HEAD
         # Finally draw labels if required
         if draw_labels is True:
             gl.xlabel_style = {'c': 'w', 'size': 6}
@@ -509,6 +610,11 @@ class HSTProjImage(object):
         return ax, dimage, gl
 
     def tvProj(self, axis=None, vmin=None, vmax=None, norm='log', grid=True, reflon=180,
+=======
+        return ax, dimage, gl
+
+    def tvProj(self, axis=None, vmin=None, vmax=None, norm='log', grid=True,
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
                badcol='0.', satovals=['all'], cmap=None, refmainoval=False,
                draw_labels=False, grid_spacing=(20, 10), fulldisc=True, **kwargs):
         """
@@ -530,9 +636,12 @@ class HSTProjImage(object):
         grid: bool, optional
             When True, draw gridlines using :class`cartopy.mpl.gridliner.Gridliner`
             Defaults to True.
+<<<<<<< HEAD
         reflon: float, optional
             Defines the longitude oriented toward the bottom of the image.
             Defaults to 180 for the north, and 0 for the south.
+=======
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
         badcol: optional
             An object that can be interpreted as a colour by matplotlib.colors
         cmap: 'str' or :class:`matplotlib.colors.Colormap`
@@ -556,10 +665,21 @@ class HSTProjImage(object):
 
         # Output projection
         hem = self.alm.hemisph
+<<<<<<< HEAD
         outproj = ccrs.PlateCarree(central_longitude=reflon, globe=self.globe)
 
         # Copy the image array for a version to operate on for display
         dimage = self.image.copy()
+=======
+        outproj = ccrs.PlateCarree(central_longitude=180, globe=self.globe)
+
+        # Copy the image array for a version to operate on for display
+        if fulldisc is True:
+            dimage = np.zeros((720, 1440))
+            dimage[self.y1:self.y2, self.x1:self.x2] = self.image
+        else:
+            dimage = self.image.copy()
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
 
         # Colour scale limits
         if vmin is None:
@@ -578,11 +698,16 @@ class HSTProjImage(object):
         # determined by the output projection. Copy the position of the input axis
         if axis is None:
             axis = plt.gca()
+<<<<<<< HEAD
         ax = plt.gcf().add_axes(axis.get_position(), projection=outproj)
+=======
+        ax = plt.gcf().add_axes(axis.get_position(), projection=self.cylproj)
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
         axis.remove()
         del axis
         ax.set_aspect('auto', adjustable='box')
 
+<<<<<<< HEAD
         out_extent = [-180, 180, self.cylproj_extent[2],
                       self.cylproj_extent[3]]
 
@@ -618,6 +743,32 @@ class HSTProjImage(object):
         self.gl = gl
 
         # Load and plot the reference main oval
+=======
+        if fulldisc is True:
+            out_extent = [180, -180, -90, 90]
+        else:
+            out_extent = self.cylproj_extent
+
+        # Show the image and plot gridlines if required
+        self.normfunc = {'log': LogNorm(vmin=vmin, vmax=vmax),
+                         'lin': Normalize(vmin=vmin, vmax=vmax)}[norm]
+        self.tvim = ax.imshow(dimage, origin='lower', extent=out_extent,
+                              norm=self.normfunc, cmap=cmap, transform=self.cylproj)
+        ax.set_aspect('equal', adjustable='box')
+        if grid is True:
+            gl = ax.gridlines(xlocs=np.arange(-180, 180, grid_spacing[0]),
+                              ylocs=np.arange(-90, 90, grid_spacing[1]),
+                              ylim=(-90, 90), linestyle=':', draw_labels=draw_labels, y_inline=False,
+                              xformatter=PlanetLonFormatter(direction_label=False))
+            gl.rotate_labels = False
+            gl.xlabel_style = {'c': '0.5'}
+            gl.ylabel_style = {'c': '0.5'}
+        else:
+            gl = []
+
+        # Load and plot the reference main oval
+
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
         if refmainoval is True:
             if hem == 'north':
                 mofile = HSTProjImage.REFDIR.joinpath('refmon.npz')
@@ -648,6 +799,7 @@ class HSTProjImage(object):
                 ax.plot(satoval.gawlon, satoval.galat, 'w',
                         transform=self.geodetic, lw=0.4)
 
+<<<<<<< HEAD
         ax.set_extent(out_extent, crs=outproj)
         ax.invert_xaxis()
 
@@ -668,3 +820,6 @@ h.tvPolar(ax, vmin=10, vmax=2000,  draw_labels=True,
           yclip=88, refmainoval=True, reflon=180)
 plt.show()
 """
+=======
+        return ax, dimage, gl
+>>>>>>> f8b500497300d1d7a55d914fb2796347fd70d3ff
