@@ -44,7 +44,10 @@ class HSTProjImage(object):
 
     # Define reference file directory
     # This will be different for each setup
+    # for Macbook Pro
     BASEDIR = Path('/Users/shin/Documents/Research/Jupiter/Codes/HST/')
+    # for Macbook Air
+    BASEDIR = Path('/Users/satoshin/Documents/Research/Jupiter/Codes/HST/')
     if BASEDIR.exists() is False:
         print('Please set the base directory to an existing directory')
     REFDIR = BASEDIR.joinpath('ref')
