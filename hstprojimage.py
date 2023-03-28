@@ -335,22 +335,35 @@ class HSTProjImage(object):
             The longitude at which northern inline latitude labels are shown
         """
         # Position of the Galilean moons in the "IAU_JUPITER" frame
+        # Calculating position of the moon by spiceypy.
+        # Then converting to the System III longitude.
         spice.furnsh("cassMetaK.txt")
-        utc = '2022-05-21T10:30'
+        utc = '2022-05-22T10:30:41'
         et = spice.str2et(utc)
+
+        # Europa's position seen from the HST in IAU_JUPITER coordinate.
         pos, lightTimes = spice.spkpos(
-            targ='EUROPA', et=et, ref='IAU_JUPITER', abcorr='NONE', obs='JUPITER'
+            targ='EUROPA', et=et, ref='IAU_JUPITER', abcorr='LT+S', obs='HST'
         )
+
+        # Jupiter's position seen from the HST in IAU_JUPITER coordinate.
+        pos1, lightTimes = spice.spkpos(
+            targ='JUPITER', et=et, ref='IAU_JUPITER', abcorr='LT+S', obs='HST'
+        )
+
+        # Europa's position seen from Jupiter in IAU_JUPITER coordinate.
+        pos = pos - pos1
+
         posx, posy = pos[0], pos[1]
-        # posz = pos[2]
-        # posr = np.sqrt(posx**2 + posy**2 + posz**2)
+        posz = pos[2]
+        posr = np.sqrt(posx**2 + posy**2 + posz**2)
         # postheta = np.arccos(posz/posr)
         posphi = np.arctan2(posy, posx)
         if posphi < 0:
             Sys3 = np.degrees(-posphi)
         else:
             Sys3 = np.degrees(2*np.pi - posphi)
-        print('PHI', posphi, 'SYS3', Sys3)
+        print('R', posr/71492, 'PHI', posphi, 'SYS3', Sys3)
 
         s3list = np.arange(0, 360, 5, dtype=int)
         s3_idx = np.argmin(np.abs(np.arange(0, 360, 5)-Sys3))
