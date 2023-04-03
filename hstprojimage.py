@@ -17,6 +17,7 @@ import scipy.constants as c
 from datetime import datetime as dt
 from scipy.io.idl import AttrDict
 import astropy.io.fits as pf
+from astropy import units as u
 import cartopy.crs as ccrs
 from cartopy.img_transform import warp_array
 from cartopy.mpl.ticker import LongitudeFormatter
@@ -24,6 +25,9 @@ import warnings
 import copy
 import sys
 import spiceypy as spice
+
+import eu_ftpS3
+from TScmap import TScmap
 
 
 class PlanetLonFormatter(LongitudeFormatter):
@@ -47,7 +51,7 @@ class HSTProjImage(object):
     # for Macbook Pro
     BASEDIR = Path('/Users/shin/Documents/Research/Jupiter/Codes/HST/')
     # for Macbook Air
-    BASEDIR = Path('/Users/satoshin/Documents/Research/Jupiter/Codes/HST/')
+    # BASEDIR = Path('/Users/satoshin/Documents/Research/Jupiter/Codes/HST/')
     if BASEDIR.exists() is False:
         print('Please set the base directory to an existing directory')
     REFDIR = BASEDIR.joinpath('ref')
@@ -113,6 +117,15 @@ class HSTProjImage(object):
         with pf.open(self.filename) as hdul:
             image = hdul[ext].data.astype(np.float32)
             h = hdul[hext].header
+
+            # Observation date and time in 'YYYY-MM-DDTHH:MM:SS'.
+            self.obsid = h['ROOTNAME']
+            self.datetime = h['TDATEOBS'] + 'T' + h['TTIMEOBS']
+            self.exptime = str(h['TEXPTIME'])
+            self.CML = str(round(h['CML'], 2))
+            self.DOY = h['ORBITDOY']
+            self.VISIT = str(h['OBSET_ID'])
+            print('OBS DATE', self.datetime)
 
         self.h2Alm(h)
         try:
@@ -334,42 +347,6 @@ class HSTProjImage(object):
         ylabellon: float, optional
             The longitude at which northern inline latitude labels are shown
         """
-        # Position of the Galilean moons in the "IAU_JUPITER" frame
-        # Calculating position of the moon by spiceypy.
-        # Then converting to the System III longitude.
-        spice.furnsh("cassMetaK.txt")
-        utc = '2022-05-22T10:30:41'
-        et = spice.str2et(utc)
-
-        # Europa's position seen from the HST in IAU_JUPITER coordinate.
-        pos, lightTimes = spice.spkpos(
-            targ='EUROPA', et=et, ref='IAU_JUPITER', abcorr='LT+S', obs='HST'
-        )
-
-        # Jupiter's position seen from the HST in IAU_JUPITER coordinate.
-        pos1, lightTimes = spice.spkpos(
-            targ='JUPITER', et=et, ref='IAU_JUPITER', abcorr='LT+S', obs='HST'
-        )
-
-        # Europa's position seen from Jupiter in IAU_JUPITER coordinate.
-        pos = pos - pos1
-
-        posx, posy = pos[0], pos[1]
-        posz = pos[2]
-        posr = np.sqrt(posx**2 + posy**2 + posz**2)
-        # postheta = np.arccos(posz/posr)
-        posphi = np.arctan2(posy, posx)
-        if posphi < 0:
-            Sys3 = np.degrees(-posphi)
-        else:
-            Sys3 = np.degrees(2*np.pi - posphi)
-        print('R', posr/71492, 'PHI', posphi, 'SYS3', Sys3)
-
-        s3list = np.arange(0, 360, 5, dtype=int)
-        s3_idx = np.argmin(np.abs(np.arange(0, 360, 5)-Sys3))
-        print('S3_IDX', s3_idx)
-        # s3_candidate = s3list[s3_idx]   # Closest Sys3 long.
-
         # Output projection
         hem = self.alm.hemisph
         if hem == 'north':
@@ -397,6 +374,7 @@ class HSTProjImage(object):
         # Load the colour table and set bad point colour
         if cmap is None:
             cmap = self._getGistCool()
+            cmap = TScmap().MIDNIGHTS()
             cmap.set_bad(badcol, 1.)
 
         # Set values near the limb to zero if required
@@ -472,7 +450,8 @@ class HSTProjImage(object):
             ax.plot(molon, molat, 'r', transform=self.geodetic)
 
         if zero is True:
-            ax.plot([0, 0], [-80, 80], 'r:', transform=self.geodetic)
+            ax.plot([0, 0], [-80, 80], 'y:',
+                    linewidth=1.75, transform=self.geodetic)
 
         # Load and plot the satellite contours
         if satovals == ['all']:
@@ -482,16 +461,20 @@ class HSTProjImage(object):
             satoval = np.recfromtxt(HSTProjImage.REFDIR.joinpath(
                 '2021je007055-sup-000'+str(1+num)+'-table si-s0'+str(num)+'.txt'), skip_header=3,
                 names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
-            euftp_lon = (satoval.euwlon[s3_idx-1]+satoval.euwlon[s3_idx])/2
-            euftp_lat = (satoval.eulat[s3_idx-1]+satoval.eulat[s3_idx])/2
-            print('EUROPA FTP', euftp_lon, euftp_lat)
+
+            self.s3wlon_lin, self.s3lat_lin = eu_ftpS3.ftpS3().calc(self.datetime,
+                                                                    satoval)
+
             if 'io' in satovals:
                 ax.plot(satoval.iowlon, satoval.iolat, 'w',
                         transform=self.geodetic, lw=0.4)
             if 'eu' in satovals:
                 ax.plot(satoval.euwlon, satoval.eulat, 'w',
                         transform=self.geodetic, lw=0.4, zorder=0.8)
-                ax.plot(euftp_lon, euftp_lat, markersize=18, marker='o', markerfacecolor='none', markeredgecolor='red',
+                ax.plot(self.s3wlon_lin, self.s3lat_lin,
+                        markersize=17, marker='o',
+                        markerfacecolor='none', markeredgecolor='#f24875',
+                        markeredgewidth=2,
                         transform=self.geodetic, zorder=5)
             if 'ga' in satovals:
                 ax.plot(satoval.gawlon, satoval.galat, 'w',
@@ -503,8 +486,8 @@ class HSTProjImage(object):
 
         # Finally draw labels if required
         if draw_labels is True:
-            gl.xlabel_style = {'c': 'w', 'size': 6}
-            gl.ylabel_style = {'c': 'w', 'size': 6}
+            gl.xlabel_style = {'c': 'w', 'size': 12}
+            gl.ylabel_style = {'c': 'w', 'size': 12}
             gl.rotate_labels = False
             gl.xpadding = -4
             gl.geo_labels = False
