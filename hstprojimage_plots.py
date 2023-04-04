@@ -8,7 +8,7 @@ Description:
 
 Version
 1.0.0 (Apr 3, 2023)
-
+2.0.0 (Apr 4, 2023) Io's and Ganymede's footprint indicated.
 """
 
 import matplotlib.pyplot as plt
@@ -26,12 +26,13 @@ plt.rcParams.update({'font.sans-serif': fontname,
                      'mathtext.bf': fontname+':bold'
                      })
 
+moon = 'GANYMEDE'
 year = '2022'
 yearlydata_dir = 'data/red/'+year
 
 doy_visit_list = sorted(os.listdir(yearlydata_dir))
-for doyvisit in doy_visit_list[12:]:
-    savedir = 'img/red/'+year+'/'+doyvisit
+for doyvisit in doy_visit_list[2:3]:
+    savedir = 'img/red/'+moon+'/'+year+'/'+doyvisit
     try:
         os.makedirs(savedir)
     except FileExistsError:
@@ -55,6 +56,7 @@ for doyvisit in doy_visit_list[12:]:
         # HST data
         h = hst.HSTProjImage(yearlydata_dir+'/'+doyvisit+'/'+fitsname)
         h.readHSTFile()
+        h.MOON = moon
         ax = axs[0]
         h.tvPolar(ax, vmin=10, vmax=2000,
                   draw_labels=True, refmainoval=False, reflon=h.alm.cml)
@@ -82,8 +84,8 @@ for doyvisit in doy_visit_list[12:]:
         else:
             NS = 'S'
             NORTHSOUTH = 'South'
-        eurftp = 'Europa footprint: '+str(round(h.s3wlon_lin, 2)) + \
-            '°W, ' + str(round(abs(h.s3lat_lin), 2)) + '°'+NS
+        eurftp = moon.capitalize()+' footprint: '+str(round(h.s3wlon_lin, 2)) + \
+            '°W, '+str(round(abs(h.s3lat_lin), 2))+'°'+NS
 
         cml = 'CML: '+h.CML+'°'
         info_txtL = doy + '\n' + cml + '\n' + eurftp
@@ -105,6 +107,7 @@ for doyvisit in doy_visit_list[12:]:
         ax.axis('off')
 
         savename, _ = fitsname.split('_stis_')
+        savename = savename+'_'+moon.lower()[0]+'ft'
         print(savename)
         plt.savefig(savedir+'/'+savename+'.jpg')
         # plt.pause(10)

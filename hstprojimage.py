@@ -24,7 +24,7 @@ import warnings
 import copy
 import sys
 
-import eu_ftpS3
+import ftpS3
 from TScmap import TScmap
 
 
@@ -123,6 +123,7 @@ class HSTProjImage(object):
             self.CML = str(round(h['CML'], 2))
             self.DOY = h['ORBITDOY']
             self.VISIT = str(h['OBSET_ID'])
+            self.MOON = None
             print('OBS DATE', self.datetime)
 
         self.h2Alm(h)
@@ -462,8 +463,8 @@ class HSTProjImage(object):
                 '2021je007055-sup-000'+str(1+num)+'-table si-s0'+str(num)+'.txt'), skip_header=3,
                 names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
 
-            self.s3wlon_lin, self.s3lat_lin = eu_ftpS3.ftpS3().calc(self.datetime,
-                                                                    satoval)
+            self.s3wlon_lin, self.s3lat_lin = ftpS3.ftpS3().FP(
+                self.datetime, satoval, self.MOON)
 
             if 'io' in satovals:
                 ax.plot(satoval.iowlon, satoval.iolat, 'y',
