@@ -17,14 +17,12 @@ import scipy.constants as c
 from datetime import datetime as dt
 from scipy.io.idl import AttrDict
 import astropy.io.fits as pf
-from astropy import units as u
 import cartopy.crs as ccrs
 from cartopy.img_transform import warp_array
 from cartopy.mpl.ticker import LongitudeFormatter
 import warnings
 import copy
 import sys
-import spiceypy as spice
 
 import eu_ftpS3
 from TScmap import TScmap
@@ -449,9 +447,11 @@ class HSTProjImage(object):
             molon = npzfile['hilon']
             ax.plot(molon, molat, 'r', transform=self.geodetic)
 
+        """
         if zero is True:
             ax.plot([0, 0], [-80, 80], 'y:',
                     linewidth=1.75, transform=self.geodetic)
+        """
 
         # Load and plot the satellite contours
         if satovals == ['all']:
@@ -466,19 +466,26 @@ class HSTProjImage(object):
                                                                     satoval)
 
             if 'io' in satovals:
-                ax.plot(satoval.iowlon, satoval.iolat, 'w',
-                        transform=self.geodetic, lw=0.4)
+                ax.plot(satoval.iowlon, satoval.iolat, 'y',
+                        transform=self.geodetic, lw=0.3)
             if 'eu' in satovals:
-                ax.plot(satoval.euwlon, satoval.eulat, 'w',
-                        transform=self.geodetic, lw=0.4, zorder=0.8)
+                ax.plot(satoval.euwlon, satoval.eulat, 'y',
+                        transform=self.geodetic, lw=0.3, zorder=0.8)
+                """
                 ax.plot(self.s3wlon_lin, self.s3lat_lin,
-                        markersize=17, marker='o',
+                        markersize=9, marker='o',
                         markerfacecolor='none', markeredgecolor='#f24875',
-                        markeredgewidth=2,
+                        markeredgewidth=0.8,
+                        transform=self.geodetic, zorder=5)
+                """
+                ax.plot(self.s3wlon_lin, self.s3lat_lin,
+                        markersize=9, marker='+',
+                        markerfacecolor='#f24875', markeredgecolor='#f24875',
+                        markeredgewidth=0.9,
                         transform=self.geodetic, zorder=5)
             if 'ga' in satovals:
-                ax.plot(satoval.gawlon, satoval.galat, 'w',
-                        transform=self.geodetic, lw=0.4)
+                ax.plot(satoval.gawlon, satoval.galat, 'y',
+                        transform=self.geodetic, lw=0.3)
 
         ax.set_extent(out_extent, crs=outproj)
         if hem == 'north':
@@ -486,8 +493,8 @@ class HSTProjImage(object):
 
         # Finally draw labels if required
         if draw_labels is True:
-            gl.xlabel_style = {'c': 'w', 'size': 12}
-            gl.ylabel_style = {'c': 'w', 'size': 12}
+            gl.xlabel_style = {'c': 'w', 'size': 10}
+            gl.ylabel_style = {'c': 'w', 'size': 10}
             gl.rotate_labels = False
             gl.xpadding = -4
             gl.geo_labels = False
