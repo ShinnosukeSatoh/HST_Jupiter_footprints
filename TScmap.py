@@ -1,3 +1,16 @@
+""" TScmap.py
+
+Created on Mar 15, 2023
+@author: Shin Satoh
+
+Description:
+
+
+Version
+1.0.0 (Mar 15, 2023)
+
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap  # colormapをカスタマイズする

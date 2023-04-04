@@ -51,22 +51,22 @@ plt.show()
 print('three done')
 """
 
-fitsname = 'jup_14-001-03-03-03_0030_v01_stis_f25srf2_flatproj.fits'
+# fitsname = 'jup_14-001-03-03-03_0030_v01_stis_f25srf2_flatproj.fits'
 # fitsname = 'jup_22-140-15-38-53_0030_v03_stis_f25srf2_flatproj.fits'
-# fitsname = 'jup_22-142-10-30-41_0030_v06_stis_f25srf2_flatproj.fits'
+fitsname = 'jup_22-142-10-30-41_0030_v06_stis_f25srf2_flatproj.fits'
 
 plt.figure(1, figsize=(5, 6), dpi=150)
 plt.clf()
-# fig, axs = plt.subplots(1, 1, num=1, dpi=100)
 fig, axs = plt.subplots(2, 1, num=1, gridspec_kw={
                         'height_ratios': [20, 1.6]})
 # 上下を結合
 plt.subplots_adjust(top=1, bottom=0.07, hspace=0.4)
 
+# Colorbar axes
 divider = make_axes_locatable(axs[0])
-cax = divider.append_axes('bottom', size='3%', pad=0)  # カラーバーを下に表示
+cax = divider.append_axes('bottom', size='3%', pad=0)
 
-
+# HST data
 h = hst.HSTProjImage(EXTRACTDIR+fitsname)
 h.readHSTFile()
 ax = axs[0]
@@ -75,6 +75,7 @@ h.tvPolar(ax, vmin=10, vmax=2000,
 # h.tvProj(ax, vmin=10, vmax=2000,
 #          draw_labels=True, refmainoval=False, reflon=h.alm.cml)
 
+# Colorbar axes plot
 axpos = ax.get_position()
 pp = fig.colorbar(h.tvim, cax=cax, orientation='horizontal')
 pp.set_label('Intensity [kR]', fontsize=11)
