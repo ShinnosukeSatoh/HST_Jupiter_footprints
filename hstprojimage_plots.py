@@ -26,12 +26,12 @@ plt.rcParams.update({'font.sans-serif': fontname,
                      'mathtext.bf': fontname+':bold'
                      })
 
-moon = 'GANYMEDE'
+moon = 'EUROPA'
 year = '2022'
 yearlydata_dir = 'data/red/'+year
 
 doy_visit_list = sorted(os.listdir(yearlydata_dir))
-for doyvisit in doy_visit_list[2:3]:
+for doyvisit in doy_visit_list[12:]:
     savedir = 'img/red/'+moon+'/'+year+'/'+doyvisit
     try:
         os.makedirs(savedir)
@@ -77,6 +77,7 @@ for doyvisit in doy_visit_list[2:3]:
         OBSDAY, OBSTIME = h.datetime.split('T')
         doy = OBSDAY + ' (DoY '+h.DOY + ')'
         visit = OBSTIME + ' (Visit '+h.VISIT+')'
+        moons3 = str(round(h.s3moon, 2))
 
         if h.s3lat_lin >= 0:
             NS = 'N'
@@ -89,7 +90,7 @@ for doyvisit in doy_visit_list[2:3]:
 
         cml = 'CML: '+h.CML+'°'
         info_txtL = doy + '\n' + cml + '\n' + eurftp
-        info_txtR = visit + '\n' + integ
+        info_txtR = visit + '\n' + integ + '\n(' + moons3 + '°W)'
         ax.set_title(title, weight='bold', fontsize=fontsize, loc='left')
         ax.set_title('Jupiter '+NORTHSOUTH, weight='bold',
                      fontsize=fontsize, loc='right')
@@ -107,7 +108,7 @@ for doyvisit in doy_visit_list[2:3]:
         ax.axis('off')
 
         savename, _ = fitsname.split('_stis_')
-        savename = savename+'_'+moon.lower()[0]+'ft'
+        savename = savename+'_'+moon.lower()[0]+'fp'
         print(savename)
         plt.savefig(savedir+'/'+savename+'.jpg')
         # plt.pause(10)
