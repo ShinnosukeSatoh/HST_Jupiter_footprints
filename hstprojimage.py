@@ -463,12 +463,19 @@ class HSTProjImage(object):
                 '2021je007055-sup-000'+str(1+num)+'-table si-s0'+str(num)+'.txt'), skip_header=3,
                 names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
 
-            self.s3wlon_lin, self.s3lat_lin = ftpS3.ftpS3().FP(
+            # Location of the selected moon's footprint
+            self.s3moon, self.s3wlon_lin, self.s3lat_lin = ftpS3.ftpS3().FP(
                 self.datetime, satoval, self.MOON)
+            ax.plot(self.s3wlon_lin, self.s3lat_lin,
+                    markersize=9, marker='+',
+                    markerfacecolor='#f24875', markeredgecolor='#f24875',
+                    markeredgewidth=0.9,
+                    transform=self.geodetic, zorder=5)
 
+            # Footprint lines
             if 'io' in satovals:
                 ax.plot(satoval.iowlon, satoval.iolat, 'y',
-                        transform=self.geodetic, lw=0.3)
+                        transform=self.geodetic, lw=0.3, zorder=0.8)
             if 'eu' in satovals:
                 ax.plot(satoval.euwlon, satoval.eulat, 'y',
                         transform=self.geodetic, lw=0.3, zorder=0.8)
@@ -479,14 +486,9 @@ class HSTProjImage(object):
                         markeredgewidth=0.8,
                         transform=self.geodetic, zorder=5)
                 """
-                ax.plot(self.s3wlon_lin, self.s3lat_lin,
-                        markersize=9, marker='+',
-                        markerfacecolor='#f24875', markeredgecolor='#f24875',
-                        markeredgewidth=0.9,
-                        transform=self.geodetic, zorder=5)
             if 'ga' in satovals:
                 ax.plot(satoval.gawlon, satoval.galat, 'y',
-                        transform=self.geodetic, lw=0.3)
+                        transform=self.geodetic, lw=0.3, zorder=0.8)
 
         ax.set_extent(out_extent, crs=outproj)
         if hem == 'north':
