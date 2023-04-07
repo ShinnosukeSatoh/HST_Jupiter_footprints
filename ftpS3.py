@@ -52,7 +52,7 @@ class ftpS3():
         s3_idx0, s3_idx1 = argsorted[0], argsorted[1]
 
         MOONs3 = [s3list[s3_idx0], s3list[s3_idx1]]
-        print('MOONS3', MOONs3)     # [350, 355]のときに計算が狂う
+        # print('MOONS3', MOONs3)     # [350, 355]のときに計算が狂う
 
         if MOON == 'IO':
             s3wlon = [satmodel.iowlon[s3_idx0], satmodel.iowlon[s3_idx1]]
@@ -66,8 +66,8 @@ class ftpS3():
             s3wlon = [satmodel.gawlon[s3_idx0], satmodel.gawlon[s3_idx1]]
             s3lat = [satmodel.galat[s3_idx0], satmodel.galat[s3_idx1]]
 
-        print('s3wlon', s3wlon)
-        print('s3lat', s3lat)
+        # print('s3wlon', s3wlon)
+        # print('s3lat', s3lat)
 
         if (s3wlon[0]-s3wlon[1]) > 300:
             ds3wlon10 = (s3wlon[1]+360)-s3wlon[0]
@@ -88,7 +88,7 @@ class ftpS3():
 
         print('EFP LAT', s3lat_lin, ', SYS3', s3wlon_lin)
 
-        return s3wlon_lin, s3lat_lin
+        return Sys3, s3wlon_lin, s3lat_lin
 
     def EFP(self, utc, satmodel):
         # Position of the Galilean moons in the "IAU_JUPITER" frame
@@ -147,6 +147,6 @@ class ftpS3():
         if s3wlon_lin > 360:
             s3wlon_lin += -360
 
-        print('EFP LAT', s3lat_lin, ', SYS3', s3wlon_lin)
+        print('FP LAT', s3lat_lin, ', SYS3', s3wlon_lin)
 
         return s3wlon_lin, s3lat_lin
