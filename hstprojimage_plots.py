@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import hstprojimage as hst
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import os
+import spiceypy as spice
 
 fontname = 'Nimbus Sans'
 plt.rcParams.update({'font.sans-serif': fontname,
@@ -29,6 +30,7 @@ plt.rcParams.update({'font.sans-serif': fontname,
 moon = 'EUROPA'
 year = '2022'
 yearlydata_dir = 'data/red/'+year
+spice.furnsh('kernel/cassMetaK.txt')
 
 doy_visit_list = sorted(os.listdir(yearlydata_dir))
 for doyvisit in doy_visit_list[12:]:
@@ -113,3 +115,5 @@ for doyvisit in doy_visit_list[12:]:
         plt.savefig(savedir+'/'+savename+'.jpg')
         # plt.pause(10)
         plt.close()
+
+        del h
