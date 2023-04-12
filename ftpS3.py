@@ -23,7 +23,8 @@ class ftpS3():
         # Position of the Galilean moons in the "IAU_JUPITER" frame
         # Calculating position of the moon by spiceypy.
         # Then converting to the System III longitude.
-        spice.furnsh('kernel/cassMetaK.txt')
+
+        # spice.furnsh('kernel/cassMetaK.txt')
         et_hst = spice.str2et(utc)
 
         # HST's position seen from the HST in IAU_JUPITER coordinate.
