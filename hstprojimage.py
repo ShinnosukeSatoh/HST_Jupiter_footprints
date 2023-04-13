@@ -519,7 +519,7 @@ class HSTProjImage(object):
 
     def tvProj(self, axis=None, vmin=None, vmax=None, norm='log', grid=True, reflon=180,
                badcol='0.', satovals=['all'], cmap=None, refmainoval=False,
-               draw_labels=False, grid_spacing=(20, 10), fulldisc=True, **kwargs):
+               draw_labels=False, grid_spacing=(30, 15), fulldisc=True, **kwargs):
         """
         Plots the cylindrical projection image as a PlateCarree projection
 
@@ -581,6 +581,7 @@ class HSTProjImage(object):
         # Load the colour table and set bad point colour
         if cmap is None:
             cmap = self._getGistCool()
+            cmap = TScmap().MIDNIGHTS()
             cmap.set_bad(badcol, 1.)
 
         # This creates a new axis - this needs to be done here as its type is
@@ -617,11 +618,11 @@ class HSTProjImage(object):
         if grid is True:
             gl = ax.gridlines(crs=self.cylproj, xlocs=np.arange(-180, 180, grid_spacing[0]),
                               ylocs=np.arange(-90, 90, grid_spacing[1]),
-                              ylim=(-90, 90), linestyle=':', draw_labels=draw_labels,
+                              ylim=(-90, 90), linestyle=':', linewidth=0.2, draw_labels=draw_labels,
                               xformatter=PlanetLonFormatter(direction_label=False))
             gl.rotate_labels = False
-            gl.xlabel_style = {'c': 'k', 'size': 'xx-small'}
-            gl.ylabel_style = {'c': 'k', 'size': 'xx-small'}
+            gl.xlabel_style = {'c': 'k', 'size': 10}
+            gl.ylabel_style = {'c': 'k', 'size': 10}
         else:
             gl = []
         self.gl = gl
@@ -647,17 +648,32 @@ class HSTProjImage(object):
             satoval = np.recfromtxt(HSTProjImage.REFDIR.joinpath(
                 '2021je007055-sup-000'+str(1+num)+'-table si-s0'+str(num)+'.txt'), skip_header=3,
                 names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
+
+            # Location of the selected moon's footprint
+            self.s3moon, self.s3wlon_lin, self.s3lat_lin = ftpS3.ftpS3().FP(
+                self.datetime, satoval, self.MOON)
+            ax.plot(self.s3wlon_lin, self.s3lat_lin,
+                    markersize=3, marker='+',
+                    markerfacecolor='#f24875', markeredgecolor='#f24875',
+                    markeredgewidth=0.3,
+                    transform=self.geodetic, zorder=5)
+
+            # Footprint lines
             if 'io' in satovals:
-                ax.plot(satoval.iowlon, satoval.iolat, 'w',
-                        transform=self.geodetic, lw=0.4)
+                ax.plot(satoval.iowlon, satoval.iolat, 'y',
+                        transform=self.geodetic, lw=0.1, zorder=0.8)
             if 'eu' in satovals:
-                ax.plot(satoval.euwlon, satoval.eulat, 'w',
-                        transform=self.geodetic, lw=0.4)
+                ax.plot(satoval.euwlon, satoval.eulat, 'y',
+                        transform=self.geodetic, lw=0.1, zorder=0.8)
             if 'ga' in satovals:
-                ax.plot(satoval.gawlon, satoval.galat, 'w',
-                        transform=self.geodetic, lw=0.4)
+                ax.plot(satoval.gawlon, satoval.galat, 'y',
+                        transform=self.geodetic, lw=0.1, zorder=0.8)
 
         ax.set_extent(out_extent, crs=outproj)
+        if hem == 'north':
+            ax.set_ylim(0, 90)
+        else:
+            ax.set_ylim(-90, 0)
         ax.invert_xaxis()
 
         return ax, dimage, gl
