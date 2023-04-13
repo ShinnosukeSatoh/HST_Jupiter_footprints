@@ -402,10 +402,16 @@ class HSTProjImage(object):
             out_extent += np.array([shiftx, shiftx, shifty, shifty])
             return out_extent
 
+        # Northern hemisphere: lat 70 deg & wlong 180 deg is the default center.
         if hem == 'north':
-            out_extent = np.array([-0.51, 0.49, -0.77, 0.23])
+            # extentは[rad]
+            # out_extent = np.array([-0.51, 0.49, -0.77, 0.23])
+            out_extent = np.array([-1.0, 1.0, -1.0, 1.0])
             if reflon != 180:
-                out_extent = _shift_centre(70, 180, out_extent)
+                # out_extent = _shift_centre(70, 180, out_extent)
+                out_extent = _shift_centre(90, 0, out_extent)
+
+        # Northern hemisphere: lat -82 deg & wlong 42 deg is the default center.
         else:
             out_extent = np.array([-0.60, 0.4, -0.6, 0.4])
             if reflon != 0:
@@ -413,7 +419,7 @@ class HSTProjImage(object):
 
         # Perform the image transformation
         dimage, dum = warp_array(dimage, outproj, source_proj=self.cylproj,
-                                 target_res=(500, 500), source_extent=self.cylproj_extent,
+                                 target_res=(1000, 1000), source_extent=self.cylproj_extent,
                                  target_extent=out_extent)
 
         # Return if no plotting is required
@@ -467,18 +473,18 @@ class HSTProjImage(object):
             self.s3moon, self.s3wlon_lin, self.s3lat_lin = ftpS3.ftpS3().FP(
                 self.datetime, satoval, self.MOON)
             ax.plot(self.s3wlon_lin, self.s3lat_lin,
-                    markersize=9, marker='+',
+                    markersize=3, marker='+',
                     markerfacecolor='#f24875', markeredgecolor='#f24875',
-                    markeredgewidth=0.9,
+                    markeredgewidth=0.3,
                     transform=self.geodetic, zorder=5)
 
             # Footprint lines
             if 'io' in satovals:
                 ax.plot(satoval.iowlon, satoval.iolat, 'y',
-                        transform=self.geodetic, lw=0.3, zorder=0.8)
+                        transform=self.geodetic, lw=0.2, zorder=0.8)
             if 'eu' in satovals:
                 ax.plot(satoval.euwlon, satoval.eulat, 'y',
-                        transform=self.geodetic, lw=0.3, zorder=0.8)
+                        transform=self.geodetic, lw=0.2, zorder=0.8)
                 """
                 ax.plot(self.s3wlon_lin, self.s3lat_lin,
                         markersize=9, marker='o',
@@ -488,7 +494,7 @@ class HSTProjImage(object):
                 """
             if 'ga' in satovals:
                 ax.plot(satoval.gawlon, satoval.galat, 'y',
-                        transform=self.geodetic, lw=0.3, zorder=0.8)
+                        transform=self.geodetic, lw=0.2, zorder=0.8)
 
         ax.set_extent(out_extent, crs=outproj)
         if hem == 'north':
