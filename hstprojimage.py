@@ -285,7 +285,8 @@ class HSTProjImage(object):
     def tvPolar(self, axis=None, vmin=None, vmax=None, yclip=88, yclipval=None,
                 norm='log', grid=True, reflon=None, zero=True, badcol='0.',
                 cmap=None, satovals=['all'], refmainoval=False, noplot=False,
-                draw_labels=False, grid_spacing=(20, 10), ylabellon=220, **kwargs):
+                draw_labels=False, grid_spacing=(20, 10), ylabellon=220,
+                ext=None, **kwargs):
         """
         Converts the cylindrical projection of the image to
         Polar Stereographic projections using Cartopy and plots.
@@ -345,6 +346,8 @@ class HSTProjImage(object):
             in degrees of drawn gridlines.
         ylabellon: float, optional
             The longitude at which northern inline latitude labels are shown
+        ext: float, optional
+            Latitudinal grid limit (as colatitude in deg)
         """
         # Output projection
         hem = self.alm.hemisph
@@ -404,18 +407,30 @@ class HSTProjImage(object):
 
         # Northern hemisphere: lat 70 deg & wlong 180 deg is the default center.
         if hem == 'north':
-            # extentは[rad]
+            # Default extent
             # out_extent = np.array([-0.51, 0.49, -0.77, 0.23])
-            out_extent = np.array([-1.0, 1.0, -1.0, 1.0])
+            out_extent = np.array([-0.5, 0.5, -0.5, 0.5])
+
+            if ext is not None:
+                # deg45 = np.radians(ext)
+                x0, _ = outproj.transform_point(90, ext, self.cylproj)
+                x1, _ = outproj.transform_point(270, ext, self.cylproj)
+                _, y0 = outproj.transform_point(180, ext, self.cylproj)
+                _, y1 = outproj.transform_point(0, ext, self.cylproj)
+                out_extent = np.array([x0, x1, y0, y1])
+                out_extent = _shift_centre(90, 0, out_extent)
+                # print('out_extent', out_extent)
+
             if reflon != 180:
                 # out_extent = _shift_centre(70, 180, out_extent)
                 out_extent = _shift_centre(90, 0, out_extent)
 
-        # Northern hemisphere: lat -82 deg & wlong 42 deg is the default center.
+        # Southern hemisphere: lat -82 deg & wlong 42 deg is the default center.
         else:
+            # Default extent
             out_extent = np.array([-0.60, 0.4, -0.6, 0.4])
             if reflon != 0:
-                out_extent = _shift_centre(-82, 42, out_extent)
+                out_extent = _shift_centre(-90, 0, out_extent)
 
         # Perform the image transformation
         dimage, dum = warp_array(dimage, outproj, source_proj=self.cylproj,

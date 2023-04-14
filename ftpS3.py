@@ -45,7 +45,7 @@ class ftpS3():
             Sys3 = np.degrees(-posphi)
         else:
             Sys3 = np.degrees(2*np.pi - posphi)
-        print('R', posr/71492, ', PHI', np.degrees(posphi), ', SYS3', Sys3)
+        # print('R', posr/71492, ', PHI', np.degrees(posphi), ', SYS3', Sys3)
 
         # Search the System III index
         s3list = np.arange(0, 361, 5)
@@ -87,7 +87,7 @@ class ftpS3():
         if s3wlon_lin > 360:
             s3wlon_lin += -360
 
-        print('EFP LAT', s3lat_lin, ', SYS3', s3wlon_lin)
+        # print('EFP LAT', s3lat_lin, ', SYS3', s3wlon_lin)
 
         return Sys3, s3wlon_lin, s3lat_lin
 
