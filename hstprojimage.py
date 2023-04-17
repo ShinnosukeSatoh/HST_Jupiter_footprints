@@ -408,8 +408,8 @@ class HSTProjImage(object):
         # Northern hemisphere: lat 70 deg & wlong 180 deg is the default center.
         if hem == 'north':
             # Default extent
-            # out_extent = np.array([-0.51, 0.49, -0.77, 0.23])
-            out_extent = np.array([-0.5, 0.5, -0.5, 0.5])
+            out_extent = np.array([-0.51, 0.49, -0.77, 0.23])
+            # out_extent = np.array([-0.5, 0.5, -0.5, 0.5])
 
             if ext is not None:
                 # deg45 = np.radians(ext)
@@ -418,7 +418,7 @@ class HSTProjImage(object):
                 _, y0 = outproj.transform_point(180, ext, self.cylproj)
                 _, y1 = outproj.transform_point(0, ext, self.cylproj)
                 out_extent = np.array([x0, x1, y0, y1])
-                out_extent = _shift_centre(90, 0, out_extent)
+                # out_extent = _shift_centre(90, 0, out_extent)
                 # print('out_extent', out_extent)
 
             if reflon != 180:
@@ -429,6 +429,18 @@ class HSTProjImage(object):
         else:
             # Default extent
             out_extent = np.array([-0.60, 0.4, -0.6, 0.4])
+
+            if ext is not None:
+                # deg45 = np.radians(ext)
+                x0, _ = outproj.transform_point(90, -ext, self.cylproj)
+                x1, _ = outproj.transform_point(270, -ext, self.cylproj)
+                _, y0 = outproj.transform_point(0, -ext, self.cylproj)
+                _, y1 = outproj.transform_point(180, -ext, self.cylproj)
+                # print('x0,x1,y0,y1', x0, x1, y0, y1)
+                out_extent = np.array([x1, x0, y1, y0])
+                # out_extent = _shift_centre(90, 0, out_extent)
+                # print('out_extent', out_extent)
+
             if reflon != 0:
                 out_extent = _shift_centre(-90, 0, out_extent)
 
