@@ -40,3 +40,6 @@
 - 座標系の取り扱い。
     - 1次元のflattenedデータを緯度経度マップにマッピングするコードを頂いた。
         - ❌ Errorが出て今のところうまく動かない。
+- Multiple Spots of EFP Aurora
+    - DetectionはAug 15 1999 by STIS (南半球4例、北半球1例) (Bonfond+2017)
+    - 2022-09-28T21:25:22 (DoY 271)に2点のスポットを確認 (北半球)。

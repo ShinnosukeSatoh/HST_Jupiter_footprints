@@ -33,18 +33,18 @@ yearlydata_dir = 'data/red/'+year
 spice.furnsh('kernel/cassMetaK.txt')
 
 doy_visit_list = sorted(os.listdir(yearlydata_dir))
-for doyvisit in doy_visit_list[3:4]:
+for doyvisit in doy_visit_list[7:8]:
     savedir = 'img/red/'+moon+'/'+year+'/'+doyvisit
     try:
         os.makedirs(savedir)
     except FileExistsError:
-        savedir += '_A1'
+        savedir += '_A'
         os.makedirs(savedir)
 
     fits30s = sorted(os.listdir(yearlydata_dir+'/'+doyvisit))
 
-    for fitsname in fits30s[0:1]:
-        plt.figure(1, figsize=(5, 6), dpi=500)
+    for fitsname in fits30s:
+        plt.figure(1, figsize=(5, 6), dpi=550)
         plt.clf()
         fig, axs = plt.subplots(2, 1, num=1,
                                 gridspec_kw={'height_ratios': [20, 1.6]})
@@ -64,8 +64,9 @@ for doyvisit in doy_visit_list[3:4]:
                   draw_labels=False, refmainoval=False,
                   satovals=['eu'],
                   reflon=None,
+                  grid=False,
                   # reflon=h.alm.cml,
-                  ext=45.0,
+                  ext=None,
                   )
 
         # Colorbar axes plot
