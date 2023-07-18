@@ -172,7 +172,7 @@ class HSTProjImage(object):
             return im
 
         if image.ndim == 1:
-
+            # ref/expaurarr_north_iinx... などを読み込む
             dat = np.load(HSTProjImage.REFDIR.joinpath(self.alm.ijinxfle))
             iinx = dat['iinx']
             jinx = dat['jinx']
@@ -497,7 +497,7 @@ class HSTProjImage(object):
                 names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
 
             # Location of the selected moon's footprint
-            self.s3moon, self.s3wlon_lin, self.s3lat_lin = ftpS3.ftpS3().FP(
+            self.s3moon, self.s3wlon_lin, self.s3lat_lin, self.s3wlon00, self.s3lat00 = ftpS3.ftpS3().FP(
                 self.datetime, satoval, self.MOON)
             ax.plot(self.s3wlon_lin, self.s3lat_lin,
                     markersize=3, marker='+',
@@ -683,7 +683,7 @@ class HSTProjImage(object):
                 names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
 
             # Location of the selected moon's footprint
-            self.s3moon, self.s3wlon_lin, self.s3lat_lin = ftpS3.ftpS3().FP(
+            self.s3moon, self.s3wlon_lin, self.s3lat_lin, self.s3wlon00, self.s3lat00 = ftpS3.ftpS3().FP(
                 self.datetime, satoval, self.MOON)
             ax.plot(self.s3wlon_lin, self.s3lat_lin,
                     markersize=3, marker='+',
