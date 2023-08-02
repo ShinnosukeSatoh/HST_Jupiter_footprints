@@ -110,7 +110,7 @@ class ftpS3():
         """_summary_
 
         Args:
-            fpwlon: System III longitude of footprint aurora at Jupiter's upper atmosphere
+            fpwlon: System III longitude of footprint aurora at Jupiter's upper atmosphere [deg]
             satmodel: footprint model from magnetic field model
             MOON: select from IO, EUROPA, GANYMEDE
 
