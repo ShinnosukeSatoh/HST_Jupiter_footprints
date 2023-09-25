@@ -58,7 +58,7 @@ if hem == 'south':
 satoval = np.recfromtxt('ref/2021je007055-sup-000'+str(3+refnum)+'-table si-s0'+str(2+refnum)+'.txt', skip_header=3,
                         names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
 
-pdcsv = pd.read_csv('data/Hue23_EFP_'+hem+'.txt', skiprows=2,
+pdcsv = pd.read_csv('data/Hue23_IFP_'+hem+'.txt', skiprows=2,
                     names=['PJ', 'UTC_TIME', 'Moon_SIII_LON', 'FP_LON', 'FP_LAT', 'FP_LON_ERR', 'FP_LAT_ERR', 'EMISSION_ANGLE'], sep='\t')
 # print(pdcsv['PJ'])
 # print(pdcsv['PJ'].str.contains('PJ07'))
@@ -84,11 +84,11 @@ for j in range(len(PJ_list)):
     h23_efpWlonEQ_M = np.zeros(h23_efpWlon.shape)
     for i in range(h23_efpWlonEQ.size):
         h23_efpWlonEQ[i] = ftpS3.ftpS3().S3EQ(
-            h23_efpWlon[i], satoval, 'EUROPA')
+            h23_efpWlon[i], satoval, 'IO')
         h23_efpWlonEQ_P[i] = ftpS3.ftpS3().S3EQ(
-            h23_efpWlon[i]+h23_efpWlon_ERR[i], satoval, 'EUROPA')
+            h23_efpWlon[i]+h23_efpWlon_ERR[i], satoval, 'IO')
         h23_efpWlonEQ_M[i] = ftpS3.ftpS3().S3EQ(
-            h23_efpWlon[i]-h23_efpWlon_ERR[i], satoval, 'EUROPA')
+            h23_efpWlon[i]-h23_efpWlon_ERR[i], satoval, 'IO')
 
     h23_leadA = h23_moonS3-h23_efpWlonEQ
     ERR_M = h23_moonS3 - h23_efpWlonEQ_M
@@ -106,19 +106,19 @@ for j in range(len(PJ_list)):
     ax.set_xlabel('Moon System III long. [deg]', fontsize=fontsize)
     ax.set_ylabel('Eq. lead angle [deg]', fontsize=fontsize)
     ax.set_xlim(0, 360)
-    ax.set_ylim(-2.05, 14)
+    ax.set_ylim(-2.05, 12)
     ax.set_xticks(np.arange(0, 361, 45))
     ax.set_xticklabels(np.arange(0, 361, 45))
     ax.xaxis.set_minor_locator(AutoMinorLocator(3))  # minor ticks
-    ax.set_yticks(np.arange(0, 14, 5))
-    ax.set_yticklabels(np.arange(0, 14, 5))
+    ax.set_yticks(np.arange(0, 12, 5))
+    ax.set_yticklabels(np.arange(0, 12, 5))
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))  # minor ticks
 
     ax.scatter(h23_moonS3, h23_leadA, marker=',', s=0.95, c=cud4[0],
                linewidths=0.7, zorder=1)
-    ax.errorbar(h23_moonS3, h23_leadA, yerr=h23_leadA_ERR,
-                linestyle='none', ecolor=cud4[0], elinewidth=0.55, marker='none', zorder=1.5)
+    # ax.errorbar(h23_moonS3, h23_leadA, yerr=h23_leadA_ERR,
+    #             linestyle='none', ecolor=cud4[0], elinewidth=0.55, marker='none', zorder=1.5)
 
     fig.tight_layout()
-    plt.savefig('img/Juno_PJ/'+hem+'/Juno_'+PJnum+'_'+hem+'_EUR.jpg')
+    plt.savefig('img/Juno_PJ/Io/'+hem+'/Juno_'+PJnum+'_'+hem+'_IO.jpg')
     plt.close()
