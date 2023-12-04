@@ -119,6 +119,7 @@ class HSTProjImage(object):
             # Observation date and time in 'YYYY-MM-DDTHH:MM:SS'.
             self.obsid = h['ROOTNAME']
             self.datetime = h['TDATEOBS'] + 'T' + h['TTIMEOBS']
+            self.hhmmss = h['TTIMEOBS']
             self.exptime = str(h['TEXPTIME'])
             self.CML = str(round(h['CML'], 2))
             self.DOY = h['ORBITDOY']
@@ -422,8 +423,8 @@ class HSTProjImage(object):
                 # print('out_extent', out_extent)
 
             if reflon != 180:
-                # out_extent = _shift_centre(70, 180, out_extent)
-                out_extent = _shift_centre(90, 0, out_extent)
+                out_extent = _shift_centre(70, 180, out_extent)
+                # out_extent = _shift_centre(90, 0, out_extent)
 
         # Southern hemisphere: lat -82 deg & wlong 42 deg is the default center.
         else:
@@ -500,9 +501,9 @@ class HSTProjImage(object):
             self.s3moon, self.s3wlon_lin, self.s3lat_lin, self.s3wlon00, self.s3lat00 = ftpS3.ftpS3().FP(
                 self.datetime, satoval, self.MOON)
             ax.plot(self.s3wlon_lin, self.s3lat_lin,
-                    markersize=3, marker='+',
+                    markersize=6, marker='+',
                     markerfacecolor='#f24875', markeredgecolor='#f24875',
-                    markeredgewidth=0.3,
+                    markeredgewidth=0.5,
                     transform=self.geodetic, zorder=5)
 
             # Footprint lines
@@ -701,6 +702,177 @@ class HSTProjImage(object):
             if 'ga' in satovals:
                 ax.plot(satoval.gawlon, satoval.galat, 'y',
                         transform=self.geodetic, lw=0.1, zorder=0.8)
+
+        ax.set_extent(out_extent, crs=outproj)
+        if hem == 'north':
+            ax.set_ylim(0, 90)
+        else:
+            ax.set_ylim(-90, 0)
+        ax.invert_xaxis()
+
+        return ax, dimage, gl
+
+    def tvProj2(self, axis=None, vmin=None, vmax=None, norm='log', grid=True, reflon=180,
+                badcol='0.', satovals=['all'], cmap=None, refmainoval=False,
+                draw_labels=False, grid_spacing=(30, 15), fulldisc=True, **kwargs):
+        """
+        Plots the cylindrical projection image as a PlateCarree projection
+
+        Parameters
+        ----------
+        axis: optional
+            A class:`matplotlib.axes.Axes` instance, used to define the position
+            of the  :class:`cartopy.mpl.geoaxes.GeoAxes` object that is created
+            to plot the image. This is destroyed after its position is used.
+        vmin, vmax: float, optional
+           Defines the data range the colormap covers. Defaults to the full
+           range of the data
+        norm: str, optional
+            The normalisation scheme used for the colormap.
+                - 'lin': Linear
+                - 'log': Logarithmic'
+        grid: bool, optional
+            When True, draw gridlines using :class`cartopy.mpl.gridliner.Gridliner`
+            Defaults to True.
+        reflon: float, optional
+            Defines the longitude oriented toward the bottom of the image.
+            Defaults to 180 for the north, and 0 for the south.
+        badcol: optional
+            An object that can be interpreted as a colour by matplotlib.colors
+        cmap: 'str' or :class:`matplotlib.colors.Colormap`
+            The :class:`matplotlib.colormap` instance or registered colormap
+            name used to map scalar data to colors.
+            Defaults to "gist_cool", which is like gist_heat but with
+            the blue and red channels swapped
+        refmainoval: bool, optional
+            When True, plot the reference main oval from Nichols et al. (2017)
+            in red
+        draw_labels: bool, optional
+            Passed to :class`cartopy.mpl.gridliner.Gridliner`. When True, draw
+            grid line labels. Defaults to False
+        grid_spacing: tuple, optional
+            A 2-tuple (lon_spacing, lat_spacing), which defines the spacing
+            in degrees of drawn gridlines.
+        fulldisc: bool, optional
+            When True, plot the full disc, i.e. 0->360 lon, -90->90 lat,
+            otherwise plot only the region covered by the image
+        """
+
+        # Output projection
+        hem = self.alm.hemisph
+        outproj = ccrs.PlateCarree(central_longitude=reflon, globe=self.globe)
+
+        # Copy the image array for a version to operate on for display
+        dimage = self.image.copy()
+
+        # Colour scale limits
+        if vmin is None:
+            vmin = np.nanmin(dimage)
+        if vmax is None:
+            vmax = np.nanmax(dimage)
+
+        dimage = np.clip(dimage, vmin, vmax)
+
+        # Load the colour table and set bad point colour
+        if cmap is None:
+            cmap = self._getGistCool()
+            cmap = TScmap().MIDNIGHTS()
+            cmap.set_bad(badcol, 1.)
+
+        # This creates a new axis - this needs to be done here as its type is
+        # determined by the output projection. Copy the position of the input axis
+        if axis is None:
+            axis = plt.gca()
+        ax = plt.gcf().add_axes(axis.get_position(), projection=outproj)
+        axis.remove()
+        del axis
+        ax.set_aspect('auto', adjustable='box')
+
+        out_extent = [-180, 180, self.cylproj_extent[2],
+                      self.cylproj_extent[3]]
+
+        # Perform the image transformation
+        dimage, dum = warp_array(dimage, outproj, source_proj=self.cylproj,
+                                 target_res=(
+                                     self.nx, self.ny), source_extent=self.cylproj_extent,
+                                 target_extent=out_extent)
+
+        # Emplace the image array in one covering the full disc if required
+        if fulldisc is True:
+            temp = np.zeros((720, 1440))
+            temp[self.y1:self.y2, self.x1:self.x2] = dimage
+            dimage = temp
+            out_extent = [-180, 180, -90, 90]
+
+        # Show the image and plot gridlines and labels if required
+        self.tv2d = dimage    # output for the image
+        self.normfunc = {'log': LogNorm(vmin=vmin, vmax=vmax),
+                         'lin': Normalize(vmin=vmin, vmax=vmax)}[norm]
+        self.tvim = ax.imshow(dimage, origin='lower',
+                              extent=out_extent, norm=self.normfunc, cmap=cmap)
+        ax.set_aspect('equal', adjustable='box')
+        if grid is True:
+            gl = ax.gridlines(crs=self.cylproj, xlocs=np.arange(-180, 180, grid_spacing[0]),
+                              ylocs=np.arange(-90, 90, grid_spacing[1]),
+                              ylim=(-90, 90), linestyle=':', linewidth=0.2, draw_labels=draw_labels,
+                              xformatter=PlanetLonFormatter(direction_label=False))
+            gl.rotate_labels = False
+            gl.xlabel_style = {'c': 'k', 'size': 10}
+            gl.ylabel_style = {'c': 'k', 'size': 10}
+        else:
+            gl = []
+        self.gl = gl
+
+        # Load and plot the reference main oval
+        if refmainoval is True:
+            if hem == 'north':
+                mofile = HSTProjImage.REFDIR.joinpath('refmon.npz')
+                latmod = 1.
+            else:
+                mofile = HSTProjImage.REFDIR.joinpath('refmoshires.npz')
+                latmod = -1.
+            npzfile = np.load(mofile)
+            molat = npzfile['hilat'] * latmod
+            molon = npzfile['hilon']
+            ax.plot(molon, molat, 'r', transform=self.geodetic)
+
+        # Load and plot the satellite contours
+        if satovals == ['all']:
+            satovals = ['io', 'eu', 'ga']
+        if len(satovals) > 0:
+            num = {'north': 2, 'south': 3}[hem]
+            satoval = np.recfromtxt(HSTProjImage.REFDIR.joinpath(
+                '2021je007055-sup-000'+str(1+num)+'-table si-s0'+str(num)+'.txt'), skip_header=3,
+                names=['wlon', 'amlat', 'amwlon', 'iolat', 'iowlon', 'eulat', 'euwlon', 'galat', 'gawlon'])
+
+            # Location of the selected moon's footprint
+            self.s3moon, self.s3wlon_lin, self.s3lat_lin, self.s3wlon00, self.s3lat00 = ftpS3.ftpS3().FP(
+                self.datetime, satoval, self.MOON)
+            ax.plot(self.s3wlon_lin, self.s3lat_lin,
+                    markersize=9, marker='x',
+                    markerfacecolor='#f24875', markeredgecolor='#f24875',
+                    markeredgewidth=1.0,
+                    transform=self.geodetic, zorder=5)
+
+            # Footprint lines
+            if 'io' in satovals:
+                ax.plot(satoval.iowlon, satoval.iolat, 'w',
+                        transform=self.geodetic, lw=0.01, zorder=0.8)
+            if 'eu' in satovals:
+                ax.plot(satoval.euwlon, satoval.eulat, 'y',
+                        transform=self.geodetic, lw=0.4, zorder=0.8)
+                ax.plot(satoval.euwlon, satoval.eulat+1.85, 'k',
+                        transform=self.geodetic, lw=23, zorder=0.8)
+                ax.plot(satoval.euwlon, satoval.eulat-1.75, 'k',
+                        transform=self.geodetic, lw=23, zorder=0.8)
+                for i in range(3):
+                    ax.plot(satoval.euwlon, satoval.eulat+1.8*(i+2), 'k',
+                            transform=self.geodetic, lw=23, zorder=0.8)
+                    ax.plot(satoval.euwlon, satoval.eulat-1.7*(i+2), 'k',
+                            transform=self.geodetic, lw=23, zorder=0.8)
+            if 'ga' in satovals:
+                ax.plot(satoval.gawlon, satoval.galat, 'w',
+                        transform=self.geodetic, lw=0.01, zorder=0.8)
 
         ax.set_extent(out_extent, crs=outproj)
         if hem == 'north':

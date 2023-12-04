@@ -28,12 +28,13 @@ plt.rcParams.update({'font.sans-serif': fontname,
                      })
 
 moon = 'EUROPA'
-year = '2014'
+year = '2022'
 yearlydata_dir = 'data/red/'+year
 spice.furnsh('kernel/cassMetaK.txt')
 
 doy_visit_list = sorted(os.listdir(yearlydata_dir))
-for doyvisit in doy_visit_list[7:8]:
+print(doy_visit_list)
+for doyvisit in doy_visit_list[12:13]:
     savedir = 'img/red/'+moon+'/'+year+'/'+doyvisit
     try:
         os.makedirs(savedir)
@@ -61,11 +62,12 @@ for doyvisit in doy_visit_list[7:8]:
         h.MOON = moon
         ax = axs[0]
         h.tvPolar(ax, vmin=10, vmax=2000,
-                  draw_labels=False, refmainoval=False,
-                  satovals=['eu'],
-                  reflon=None,
-                  grid=False,
-                  # reflon=h.alm.cml,
+                  # h.tvPolar(ax, vmin=50, vmax=60000,
+                  draw_labels=True, refmainoval=False,
+                  satovals=['all'],
+                  # reflon=None,
+                  grid=True,
+                  reflon=h.alm.cml,
                   ext=None,
                   )
 

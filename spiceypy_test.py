@@ -17,9 +17,10 @@ Version
 import matplotlib.pyplot as plt
 import numpy as np
 import spiceypy as spice
+import datetime
 
 
-spice.furnsh("cassMetaK.txt")
+spice.furnsh('kernel/cassMetaK.txt')
 
 # 木星半径
 RJ = 71492   # [km]
@@ -27,7 +28,7 @@ RJ = 71492   # [km]
 # 時間刻み数
 step = 2
 # we are going to get positions between these two dates
-utc = ['2022-05-21', '2022-05-22']
+utc = ['2014-03-09T01:03:30', '2022-05-22']
 
 # get et values one and two, we could vectorize str2et
 etOne = spice.str2et(utc[0])
