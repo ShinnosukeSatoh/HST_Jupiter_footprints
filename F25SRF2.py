@@ -245,43 +245,59 @@ def EP_CALC(HSTUTC, B_kR):
     r_hst = np.sqrt(pos[:, 0]**2+pos[:, 1]**2+pos[:, 2]**2)  # [km]
 
     # Count rate
-    Ct_convert = (1E+6/(4*np.pi))*A_HST*(th_equiv/100)*Sigma_px*(1E+3)
+    # Ct_convert = (1E+6/(4*np.pi))*A_HST*(th_equiv/100)*Sigma_px*(1E+3)
+    Ct_convert = 1/4523     # Gustin+2012 CR=2.5
     Ct = Ct_convert*B_kR
     # print(Ct)
     print(1/Ct_convert)
 
     # Emitted power
-    CR = 2.0    # Color ratio of Jupiter atmosphere
-    EP_70180 = (4391/3948)*(9.94E-10)*(r_hst**2)*Ct    # [W]
+    CR = 2.5    # Color ratio of Jupiter atmosphere
+    EP_70180 = (4523/3948)*(1.02E-9)*(r_hst**2)*Ct    # [W]
 
     return EP_70180
 
 
-# Plot (2)
+# Plot (3)
 fontsize = 18
-fig, ax = plt.subplots(figsize=(5.8, 3.4), dpi=226)
+fig, ax = plt.subplots(figsize=(5.8, 3.4), dpi=326)
 fig.tight_layout()
 # ax.set_title('FUV Power (70-180 nm)', fontsize=fontsize, weight='bold')
 ax.tick_params(axis='both', labelsize=fontsize)
 ax.set_xlim(0, 360)
-ax.set_ylim(0, 82)
+ax.set_ylim(0, 26)
 ax.set_xticks(np.arange(0, 361, 45))
 ax.set_xticklabels(np.arange(0, 361, 45), fontsize=fontsize)
 ax.xaxis.set_minor_locator(AutoMinorLocator(3))  # minor ticks
-ax.set_yticks(np.arange(0, 82, 25))
-ax.set_yticklabels(np.arange(0, 82, 25), fontsize=fontsize)
-ax.yaxis.set_minor_locator(AutoMinorLocator(4))  # minor ticks
-ax.set_xlabel('Moon System III longitude [deg]', fontsize=fontsize)
-ax.set_ylabel('FUV power [MW]', fontsize=fontsize)
-ax.text(0.01, 1.020, r'Case 1: CR=2.0, $r=7\times10^{-4}$',
+ax.set_yticks(np.arange(0, 26, 5))
+ax.set_yticklabels(np.arange(0, 26, 5), fontsize=fontsize)
+ax.yaxis.set_minor_locator(AutoMinorLocator(5))  # minor ticks
+ax.set_xlabel(
+    r'Moon System III longitude $\lambda_{\rm III}$ [deg]', fontsize=fontsize)
+ax.set_ylabel('Total emission [MW]', fontsize=fontsize)
+ax.text(0.01, 1.020, r'70-180 nm (Case 2: CR=2.5, $r=2.5\times10^{-4}$)',
         color='k',
         horizontalalignment='left',
         verticalalignment='bottom',
         transform=ax.transAxes,
         fontsize=fontsize*0.42)
-ax.text(0.02, 0.95, 'STIS/SrF2 (70-180 nm)',
+ax.text(0.02, 0.95, 'STIS/SrF2',
         weight='bold',
         color='k',
+        horizontalalignment='left',
+        verticalalignment='top',
+        transform=ax.transAxes,
+        fontsize=fontsize*0.8)
+ax.text(0.72, 0.95, '2014',
+        weight='bold',
+        color=cud4[0],
+        horizontalalignment='left',
+        verticalalignment='top',
+        transform=ax.transAxes,
+        fontsize=fontsize*0.8)
+ax.text(0.85, 0.95, '2022',
+        weight='bold',
+        color=cud4[3],
         horizontalalignment='left',
         verticalalignment='top',
         transform=ax.transAxes,
@@ -342,7 +358,7 @@ for i in range(len(doy)):
 # ESTIMATED POWER
 pwr_14 = np.loadtxt('data/Power/2014_R4.txt')
 pwr_22 = np.loadtxt('data/Power/2022_R4.txt')
-factor = 7*1E-10     # Transmittance?
+factor = 2.5*1E-10     # Transmittance?
 pwr_14[1, :] *= factor
 pwr_22[1, :] *= factor
 ax.plot(pwr_14[0, :], pwr_14[1, :],
@@ -375,32 +391,13 @@ ax.fill_between(x=pwr_22[0, :],
 
 ax2 = ax.twinx()
 ax2.tick_params(axis='both', labelsize=fontsize)
-ax2.set_ylim(0, 82)
+ax2.set_ylim(0, 26)
 ax2.set_yticks(np.arange(0, 101, 25)*1E+9*factor)
 ax2.set_yticklabels(np.arange(0, 101, 25), fontsize=fontsize)
 ax2.yaxis.set_minor_locator(AutoMinorLocator(4))  # minor ticks
 ax2.set_ylabel('Estimated total [GW]', fontsize=fontsize)
 
-"""
-legend = ax.legend(loc='upper center',
-                   ncol=1,
-                   markerscale=3.5,
-                   bbox_to_anchor=(0.9, 1.0),
-                   fancybox=False,
-                   facecolor='white',
-                   framealpha=1,
-                   edgecolor='k',
-                   fontsize=fontsize*0.65,
-                   labelspacing=0.34,
-                   handlelength=0.5,
-                   scatterpoints=1, )
-legend_shadow(fig, ax, legend, 0.0001, -0.082)
-
-# get contour colors
-i = 0
-for leg1text in legend.get_texts():
-    leg1text.set_color(cud4_N[i])
-    i += 1
-"""
 fig.tight_layout()
+
+plt.savefig('Total_power.png')
 plt.show()
