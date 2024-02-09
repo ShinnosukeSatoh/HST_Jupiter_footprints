@@ -235,14 +235,15 @@ doy = north_doy
 csvname0 = 'img/red3_half2/EUROPA/20'+doy[0]+'/brightness.csv'
 
 
-def EP_CALC(HSTUTC, B_kR):
+def EP_CALC(HSTUTC, B_kR, CR):
     # HST's position seen from the HST in IAU_JUPITER coordinate.
-    AU = 149597870700
+    AU = 149597870.7
     et_hst = spice.str2et(HSTUTC)
     pos, _ = spice.spkpos(
         targ='HST', et=et_hst, ref='IAU_JUPITER', abcorr='LT+S', obs='JUPITER'
     )
     r_hst = np.sqrt(pos[:, 0]**2+pos[:, 1]**2+pos[:, 2]**2)  # [km]
+    print('Distance [km] and [AU]: ', r_hst, r_hst/AU)
 
     # Count rate
     # Ct_convert = (1E+6/(4*np.pi))*A_HST*(th_equiv/100)*Sigma_px*(1E+3)
@@ -252,9 +253,16 @@ def EP_CALC(HSTUTC, B_kR):
     print(1/Ct_convert)
 
     # Emitted power
-    CR = 2.5    # Color ratio of Jupiter atmosphere
-    EP_70180 = (4523/3948)*(1.02E-9)*(r_hst**2)*Ct    # [W]
-
+    if CR == 1.5:
+        EP_70180 = (4215/3948)*(9.54E-10)*(r_hst**2)*Ct    # [W]
+    if CR == 2.0:
+        EP_70180 = (4391/3948)*(9.94E-10)*(r_hst**2)*Ct    # [W]
+    if CR == 2.5:
+        EP_70180 = (4523/3948)*(1.02E-9)*(r_hst**2)*Ct    # [W]
+    elif CR == 5.0:
+        EP_70180 = (4841/3948)*(1.10E-9)*(r_hst**2)*Ct    # [W]
+    elif CR == 10:
+        EP_70180 = (5086/3948)*(1.15E-9)*(r_hst**2)*Ct    # [W]
     return EP_70180
 
 
@@ -275,7 +283,7 @@ ax.yaxis.set_minor_locator(AutoMinorLocator(5))  # minor ticks
 ax.set_xlabel(
     r'Moon System III longitude $\lambda_{\rm III}$ [deg]', fontsize=fontsize)
 ax.set_ylabel('Total emission [MW]', fontsize=fontsize)
-ax.text(0.01, 1.020, r'70-180 nm (Case 2: CR=2.5, $r=2.5\times10^{-4}$)',
+ax.text(0.01, 1.020, r'70-180 nm (Case 3: CR=1.5, 10.0, $r=2.2\times10^{-4}$)',
         color='k',
         horizontalalignment='left',
         verticalalignment='bottom',
@@ -308,7 +316,9 @@ cud4_N = [cud4[0], cud4[2], cud4[3], cud4[5], cud4[7]]
 cud4_N2 = [cud4[0], cud4[0], cud4[0], cud4[3], cud4[3]]
 doyname = ['2014-01-06', '2014-01-13', '2014-01-16'] + \
     ['2022-09-28', '2022-10-01']
+colorratio = [1.5, 1.5, 1.5, 10.0, 10.0]
 for i in range(len(doy)):
+    print(doyname[i])
     csvname0 = 'img/red3_half2/EUROPA/20'+doy[i]+'/brightness.csv'
     utc, b0_arr, b1_arr, efplat0_arr, efpwlong0_arr, moons30_arr = load(
         csvname0)
@@ -340,7 +350,8 @@ for i in range(len(doy)):
     moon_leadback_ave = np.average(moon_leadback)
     moon_leadback_std = np.std(moon_leadback)
 
-    EP_70180 = EP_CALC(utc, b0_arr)     # Emitted power [W]
+    EP_70180 = EP_CALC(HSTUTC=utc, B_kR=b0_arr,
+                       CR=colorratio[i])     # Emitted power [W]
     EP_std = np.std(EP_70180)           # Standard deviation [W]
 
     """
@@ -358,7 +369,7 @@ for i in range(len(doy)):
 # ESTIMATED POWER
 pwr_14 = np.loadtxt('data/Power/2014_R4.txt')
 pwr_22 = np.loadtxt('data/Power/2022_R4.txt')
-factor = 2.5*1E-10     # Transmittance?
+factor = 2.2*1E-10     # Transmittance?
 pwr_14[1, :] *= factor
 pwr_22[1, :] *= factor
 ax.plot(pwr_14[0, :], pwr_14[1, :],
@@ -399,5 +410,5 @@ ax2.set_ylabel('Estimated total [GW]', fontsize=fontsize)
 
 fig.tight_layout()
 
-plt.savefig('Total_power.png')
+plt.savefig('Total_power_CR.png')
 plt.show()
