@@ -283,7 +283,7 @@ ax.yaxis.set_minor_locator(AutoMinorLocator(5))  # minor ticks
 ax.set_xlabel(
     r'Moon System III longitude $\lambda_{\rm III}$ [deg]', fontsize=fontsize)
 ax.set_ylabel('Total emission [MW]', fontsize=fontsize)
-ax.text(0.01, 1.020, r'70-180 nm (Case 3: CR=1.5, 10.0, $r=2.2\times10^{-4}$)',
+ax.text(0.01, 1.020, r'70-180 nm (Case 3: CR=2.0, 5.0, $r=2.2\times10^{-4}$)',
         color='k',
         horizontalalignment='left',
         verticalalignment='bottom',
@@ -316,7 +316,7 @@ cud4_N = [cud4[0], cud4[2], cud4[3], cud4[5], cud4[7]]
 cud4_N2 = [cud4[0], cud4[0], cud4[0], cud4[3], cud4[3]]
 doyname = ['2014-01-06', '2014-01-13', '2014-01-16'] + \
     ['2022-09-28', '2022-10-01']
-colorratio = [1.5, 1.5, 1.5, 10.0, 10.0]
+colorratio = [2.0, 2.0, 2.0, 5.0, 5.0]
 for i in range(len(doy)):
     print(doyname[i])
     csvname0 = 'img/red3_half2/EUROPA/20'+doy[i]+'/brightness.csv'
@@ -358,7 +358,6 @@ for i in range(len(doy)):
     ax.scatter(moon_leadback, EP_70180*1E-6, marker='s', s=1,
                color=cud4_N[i], label=doyname[i], zorder=10-i, )
     """
-
     ax.errorbar(moon_leadback_ave, np.average(EP_70180)*1E-6,
                 xerr=moon_leadback_std, yerr=EP_std*1E-6,
                 marker='s', markersize=3.5, mfc=cud4_N2[i],
