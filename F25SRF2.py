@@ -237,20 +237,17 @@ csvname0 = 'img/red3_half2/EUROPA/20'+doy[0]+'/brightness.csv'
 
 def EP_CALC(HSTUTC, B_kR, CR):
     # HST's position seen from the HST in IAU_JUPITER coordinate.
-    AU = 149597870.7
     et_hst = spice.str2et(HSTUTC)
     pos, _ = spice.spkpos(
         targ='HST', et=et_hst, ref='IAU_JUPITER', abcorr='LT+S', obs='JUPITER'
     )
     r_hst = np.sqrt(pos[:, 0]**2+pos[:, 1]**2+pos[:, 2]**2)  # [km]
-    print('Distance [km] and [AU]: ', r_hst, r_hst/AU)
+    # print('Distance [km] and [AU]: ', r_hst, r_hst/AU)
 
     # Count rate
-    # Ct_convert = (1E+6/(4*np.pi))*A_HST*(th_equiv/100)*Sigma_px*(1E+3)
     Ct_convert = 1/4523     # Gustin+2012 CR=2.5
     Ct = Ct_convert*B_kR
     # print(Ct)
-    print(1/Ct_convert)
 
     # Emitted power
     if CR == 1.5:
@@ -263,47 +260,59 @@ def EP_CALC(HSTUTC, B_kR, CR):
         EP_70180 = (4841/3948)*(1.10E-9)*(r_hst**2)*Ct    # [W]
     elif CR == 10:
         EP_70180 = (5086/3948)*(1.15E-9)*(r_hst**2)*Ct    # [W]
+
     return EP_70180
+
+
+def EP_CALC2(B_kR):
+    # Assumed: 10 kR = 1 mW m-2 electron energy flux (Gustin+2012)
+    # Assumed: radius of EFP = 300 km on Jupiter (Moirano+2021)
+    Rf = 300*1E+3   # radius of EFP [m]
+    EP_E = B_kR * 0.1 * np.pi * (Rf**2) * 1E-3      # [W]
+
+    return EP_E
 
 
 # Plot (3)
 fontsize = 18
 fig, ax = plt.subplots(figsize=(5.8, 3.4), dpi=326)
+ax.set_zorder(1)
+ax.patch.set_visible(False)  # prevents ax1 from hiding ax2
 fig.tight_layout()
 # ax.set_title('FUV Power (70-180 nm)', fontsize=fontsize, weight='bold')
 ax.tick_params(axis='both', labelsize=fontsize)
 ax.set_xlim(0, 360)
-ax.set_ylim(0, 26)
+ax.set_ylim(0, 7)
 ax.set_xticks(np.arange(0, 361, 45))
 ax.set_xticklabels(np.arange(0, 361, 45), fontsize=fontsize)
 ax.xaxis.set_minor_locator(AutoMinorLocator(3))  # minor ticks
-ax.set_yticks(np.arange(0, 26, 5))
-ax.set_yticklabels(np.arange(0, 26, 5), fontsize=fontsize)
-ax.yaxis.set_minor_locator(AutoMinorLocator(5))  # minor ticks
+ax.set_yticks(np.arange(0, 7, 2))
+# ax.set_yticklabels(np.arange(0, 23, 5), fontsize=fontsize)
+ax.yaxis.set_minor_locator(AutoMinorLocator(4))  # minor ticks
 ax.set_xlabel(
     r'Moon System III longitude $\lambda_{\rm III}$ [deg]', fontsize=fontsize)
-ax.set_ylabel('Total emission [MW]', fontsize=fontsize)
-ax.text(0.01, 1.020, r'70-180 nm (Case 3: CR=2.0, 5.0, $r=2.2\times10^{-4}$)',
+ax.set_ylabel('Total emission [GW]', fontsize=fontsize)
+ax.text(0.01, 1.020, r'Total UV emission in 70-180 nm',
         color='k',
         horizontalalignment='left',
         verticalalignment='bottom',
         transform=ax.transAxes,
         fontsize=fontsize*0.42)
-ax.text(0.02, 0.95, 'STIS/SrF2',
+ax.text(0.035, 0.93, 'STIS/SrF2',
         weight='bold',
         color='k',
         horizontalalignment='left',
         verticalalignment='top',
         transform=ax.transAxes,
         fontsize=fontsize*0.8)
-ax.text(0.72, 0.95, '2014',
+ax.text(0.70, 0.93, '2014',
         weight='bold',
         color=cud4[0],
         horizontalalignment='left',
         verticalalignment='top',
         transform=ax.transAxes,
         fontsize=fontsize*0.8)
-ax.text(0.85, 0.95, '2022',
+ax.text(0.85, 0.93, '2022',
         weight='bold',
         color=cud4[3],
         horizontalalignment='left',
@@ -311,14 +320,22 @@ ax.text(0.85, 0.95, '2022',
         transform=ax.transAxes,
         fontsize=fontsize*0.8)
 
+ax2 = ax.twinx()
+ax2.tick_params(axis='both', labelsize=fontsize)
+ax2.set_ylim(0, 450)
+ax2.set_yticks(np.arange(0, 450, 100))
+# ax2.set_yticklabels(np.arange(0, 101, 25), fontsize=fontsize)
+ax2.yaxis.set_minor_locator(AutoMinorLocator(4))  # minor ticks
+ax2.set_ylabel(r'Poynting flux $S$ [GW]', fontsize=fontsize)
+
 # OBSERVED POWER
 cud4_N = [cud4[0], cud4[2], cud4[3], cud4[5], cud4[7]]
 cud4_N2 = [cud4[0], cud4[0], cud4[0], cud4[3], cud4[3]]
 doyname = ['2014-01-06', '2014-01-13', '2014-01-16'] + \
     ['2022-09-28', '2022-10-01']
-colorratio = [2.0, 2.0, 2.0, 5.0, 5.0]
+colorratio = [2.0, 2.0, 2.0, 2.0, 2.0]
 for i in range(len(doy)):
-    print(doyname[i])
+    # print(doyname[i])
     csvname0 = 'img/red3_half2/EUROPA/20'+doy[i]+'/brightness.csv'
     utc, b0_arr, b1_arr, efplat0_arr, efpwlong0_arr, moons30_arr = load(
         csvname0)
@@ -352,62 +369,59 @@ for i in range(len(doy)):
 
     EP_70180 = EP_CALC(HSTUTC=utc, B_kR=b0_arr,
                        CR=colorratio[i])     # Emitted power [W]
+    EP_70180 = EP_CALC2(B_kR=b0_arr)
     EP_std = np.std(EP_70180)           # Standard deviation [W]
+    print('Ave. emission [GW]', np.average(EP_70180)*1E-9)
 
     """
     ax.scatter(moon_leadback, EP_70180*1E-6, marker='s', s=1,
                color=cud4_N[i], label=doyname[i], zorder=10-i, )
     """
-    ax.errorbar(moon_leadback_ave, np.average(EP_70180)*1E-6,
-                xerr=moon_leadback_std, yerr=EP_std*1E-6,
+    ax.errorbar(moon_leadback_ave, np.average(EP_70180)*1E-9,
+                xerr=moon_leadback_std, yerr=EP_std*1E-9,
                 marker='s', markersize=3.5, mfc=cud4_N2[i],
                 mec=cud4_N2[i], linestyle='none', ecolor=cud4_N2[i],
                 elinewidth=1.2, zorder=1.5)
 
 
 # ESTIMATED POWER
-pwr_14 = np.loadtxt('data/Power/2014_R4.txt')
-pwr_22 = np.loadtxt('data/Power/2022_R4.txt')
-factor = 2.2*1E-10     # Transmittance?
-pwr_14[1, :] *= factor
-pwr_22[1, :] *= factor
-ax.plot(pwr_14[0, :], pwr_14[1, :],
-        linewidth=1.0, color=cud4[0], zorder=0.8)
-ax.plot(pwr_22[0, :], pwr_22[1, :],
-        linewidth=1.0, color=cud4[3], zorder=0.8)
+pwr_14 = np.loadtxt('data/Poyntingflux/PY_2014_R4.txt')
+pwr_22 = np.loadtxt('data/Poyntingflux/PY_2022_R4.txt')
+
+pwr_14[1, :] *= 1E-9    # [GW]
+pwr_22[1, :] *= 1E-9    # [GW]
+print('Average S 14 & 22 [GW]', np.average(
+    pwr_14[1, :]), np.average(pwr_22[1, :]),)
+
+ax2.plot(pwr_14[0, :], pwr_14[1, :],
+         linewidth=1.0, color=cud4[0], zorder=0.8)
+ax2.plot(pwr_22[0, :], pwr_22[1, :],
+         linewidth=1.0, color=cud4[3], zorder=0.8)
 ax.yaxis.set_major_formatter(
     ptick.ScalarFormatter(useMathText=True))    # 指数表記
-pwr_14_arr = np.zeros((10, pwr_14[1, :].size))
-pwr_22_arr = np.zeros((10, pwr_22[1, :].size))
-for i in range(10):
-    pwr_14_1 = np.loadtxt('data/Power/1s_rand/2014_R4_rand'+str(i)+'.txt')
-    pwr_22_1 = np.loadtxt('data/Power/1s_rand/2022_R4_rand'+str(i)+'.txt')
-    pwr_14_arr[i, :] = pwr_14_1[1, :]*factor
-    pwr_22_arr[i, :] = pwr_22_1[1, :]*factor
-ax.fill_between(x=pwr_14[0, :],
-                y1=pwr_14_arr.max(axis=0),
-                y2=pwr_14_arr.min(axis=0),
-                alpha=0.6,
-                color=cud4bs[0],
-                edgecolor=None,
-                zorder=0.6,)
-ax.fill_between(x=pwr_22[0, :],
-                y1=pwr_22_arr.max(axis=0),
-                y2=pwr_22_arr.min(axis=0),
-                alpha=0.6,
-                color=cud4bs[3],
-                edgecolor=None,
-                zorder=0.6,)
-
-ax2 = ax.twinx()
-ax2.tick_params(axis='both', labelsize=fontsize)
-ax2.set_ylim(0, 26)
-ax2.set_yticks(np.arange(0, 101, 25)*1E+9*factor)
-ax2.set_yticklabels(np.arange(0, 101, 25), fontsize=fontsize)
-ax2.yaxis.set_minor_locator(AutoMinorLocator(4))  # minor ticks
-ax2.set_ylabel('Estimated total [GW]', fontsize=fontsize)
+pwr_14_arr = np.zeros((12, pwr_14[1, :].size))
+pwr_22_arr = np.zeros((12, pwr_22[1, :].size))
+for i in range(12):
+    pwr_14_1 = np.loadtxt('data/Poyntingflux/PY_2014_R4_edge_'+str(i)+'.txt')
+    pwr_22_1 = np.loadtxt('data/Poyntingflux/PY_2022_R4_edge_'+str(i)+'.txt')
+    pwr_14_arr[i, :] = pwr_14_1[1, :]*1E-9   # [GW]
+    pwr_22_arr[i, :] = pwr_22_1[1, :]*1E-9   # [GW]
+ax2.fill_between(x=pwr_14[0, :],
+                 y1=pwr_14_arr.max(axis=0),
+                 y2=pwr_14_arr.min(axis=0),
+                 alpha=0.6,
+                 color=cud4bs[0],
+                 edgecolor=None,
+                 zorder=0.6,)
+ax2.fill_between(x=pwr_22[0, :],
+                 y1=pwr_22_arr.max(axis=0),
+                 y2=pwr_22_arr.min(axis=0),
+                 alpha=0.6,
+                 color=cud4bs[3],
+                 edgecolor=None,
+                 zorder=0.6,)
 
 fig.tight_layout()
 
-plt.savefig('Total_power_CR.png')
+plt.savefig('Total_power_CR5.png')
 plt.show()
