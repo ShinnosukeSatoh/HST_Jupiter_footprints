@@ -267,32 +267,39 @@ def EP_CALC(HSTUTC, B_kR, CR):
 def EP_CALC2(B_kR):
     # Assumed: 10 kR = 1 mW m-2 electron energy flux (Gustin+2012)
     # Assumed: radius of EFP = 300 km on Jupiter (Moirano+2021)
+
+    # Count rate
+    Ct_convert = 1/4523     # Gustin+2012 CR=2.5
+    Ct = Ct_convert*B_kR
+    Ct2Flux = 400*1E-3      # W m-2 (count s-1)-1
+
     Rf = 300*1E+3   # radius of EFP [m]
-    EP_E = B_kR * 0.1 * np.pi * (Rf**2) * 1E-3      # [W]
+    EP_E = B_kR*(4391/4523) * 0.1 * np.pi * (Rf**2) * 1E-3      # [W]
+    EP_E = Ct*Ct2Flux*np.pi*(Rf**2)      # [W]
 
     return EP_E
 
 
 # Plot (3)
 fontsize = 18
-fig, ax = plt.subplots(figsize=(5.8, 3.4), dpi=326)
+fig, ax = plt.subplots(figsize=(5.5, 3.4), dpi=326)
 ax.set_zorder(1)
 ax.patch.set_visible(False)  # prevents ax1 from hiding ax2
 fig.tight_layout()
 # ax.set_title('FUV Power (70-180 nm)', fontsize=fontsize, weight='bold')
 ax.tick_params(axis='both', labelsize=fontsize)
 ax.set_xlim(0, 360)
-ax.set_ylim(0, 7)
+ax.set_ylim(0, 6.1)
 ax.set_xticks(np.arange(0, 361, 45))
 ax.set_xticklabels(np.arange(0, 361, 45), fontsize=fontsize)
 ax.xaxis.set_minor_locator(AutoMinorLocator(3))  # minor ticks
-ax.set_yticks(np.arange(0, 7, 2))
+ax.set_yticks(np.arange(0, 7, 1))
 # ax.set_yticklabels(np.arange(0, 23, 5), fontsize=fontsize)
-ax.yaxis.set_minor_locator(AutoMinorLocator(4))  # minor ticks
+ax.yaxis.set_minor_locator(AutoMinorLocator(2))  # minor ticks
 ax.set_xlabel(
     r'Moon System III longitude $\lambda_{\rm III}$ [deg]', fontsize=fontsize)
-ax.set_ylabel('Total emission [GW]', fontsize=fontsize)
-ax.text(0.01, 1.020, r'Total UV emission in 70-180 nm',
+ax.set_ylabel(r'UV emission $P_{\rm UV}$ [GW]', fontsize=fontsize)
+ax.text(0.01, 1.020, r'Total UV emission in 70-180 nm (North)',
         color='k',
         horizontalalignment='left',
         verticalalignment='bottom',
@@ -322,11 +329,11 @@ ax.text(0.85, 0.93, '2022',
 
 ax2 = ax.twinx()
 ax2.tick_params(axis='both', labelsize=fontsize)
-ax2.set_ylim(0, 450)
-ax2.set_yticks(np.arange(0, 450, 100))
+ax2.set_ylim(0, 225)
+ax2.set_yticks(np.arange(0, 225, 50))
 # ax2.set_yticklabels(np.arange(0, 101, 25), fontsize=fontsize)
-ax2.yaxis.set_minor_locator(AutoMinorLocator(4))  # minor ticks
-ax2.set_ylabel(r'Poynting flux $S$ [GW]', fontsize=fontsize)
+ax2.yaxis.set_minor_locator(AutoMinorLocator(2))  # minor ticks
+ax2.set_ylabel(r'Poynting flux $S_{\rm N}$ [GW]', fontsize=fontsize)
 
 # OBSERVED POWER
 cud4_N = [cud4[0], cud4[2], cud4[3], cud4[5], cud4[7]]
@@ -390,6 +397,8 @@ pwr_22 = np.loadtxt('data/Poyntingflux/PY_2022_R4.txt')
 
 pwr_14[1, :] *= 1E-9    # [GW]
 pwr_22[1, :] *= 1E-9    # [GW]
+pwr_14[1, :] *= 0.5     # Northern hemisphere [GW]
+pwr_22[1, :] *= 0.5     # Northern hemisphere [GW]
 print('Average S 14 & 22 [GW]', np.average(
     pwr_14[1, :]), np.average(pwr_22[1, :]),)
 
@@ -406,6 +415,8 @@ for i in range(12):
     pwr_22_1 = np.loadtxt('data/Poyntingflux/PY_2022_R4_edge_'+str(i)+'.txt')
     pwr_14_arr[i, :] = pwr_14_1[1, :]*1E-9   # [GW]
     pwr_22_arr[i, :] = pwr_22_1[1, :]*1E-9   # [GW]
+    pwr_14_arr[i, :] *= 0.5   # Northern hemisphere [GW]
+    pwr_22_arr[i, :] *= 0.5   # Northerm hemisphere [GW]
 ax2.fill_between(x=pwr_14[0, :],
                  y1=pwr_14_arr.max(axis=0),
                  y2=pwr_14_arr.min(axis=0),
@@ -423,5 +434,5 @@ ax2.fill_between(x=pwr_22[0, :],
 
 fig.tight_layout()
 
-plt.savefig('Total_power_CR5.png')
+plt.savefig('Total_power_CR6.png')
 plt.show()
